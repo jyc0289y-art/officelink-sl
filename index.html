@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarkLink SL</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/src/styles/main.css" />
+  <link rel="stylesheet" href="/src/styles/editor.css" />
+  <link rel="stylesheet" href="/src/styles/preview.css" />
+  <link rel="stylesheet" href="/src/styles/theme-light.css" />
+  <link rel="stylesheet" href="/src/styles/theme-dark.css" />
+</head>
+<body>
+  <!-- Toolbar -->
+  <header id="toolbar" class="toolbar">
+    <div class="toolbar-left">
+      <span class="toolbar-brand">✦ MarkLink SL</span>
+      <div class="toolbar-divider"></div>
+      <button id="btn-open" class="toolbar-btn" title="Open File (⌘O)">
+        <span class="icon">📂</span>
+      </button>
+      <button id="btn-save" class="toolbar-btn" title="Save File (⌘S)">
+        <span class="icon">💾</span>
+      </button>
+      <div class="toolbar-divider"></div>
+      <button id="btn-bold" class="toolbar-btn" title="Bold (⌘B)">
+        <span class="icon"><b>B</b></span>
+      </button>
+      <button id="btn-italic" class="toolbar-btn" title="Italic (⌘I)">
+        <span class="icon"><i>I</i></span>
+      </button>
+      <button id="btn-heading" class="toolbar-btn" title="Heading">
+        <span class="icon">H</span>
+      </button>
+      <button id="btn-code" class="toolbar-btn" title="Code Block">
+        <span class="icon">&lt;/&gt;</span>
+      </button>
+      <button id="btn-list" class="toolbar-btn" title="List">
+        <span class="icon">☰</span>
+      </button>
+      <button id="btn-link" class="toolbar-btn" title="Link">
+        <span class="icon">🔗</span>
+      </button>
+      <button id="btn-table" class="toolbar-btn" title="Table">
+        <span class="icon">▦</span>
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <button id="btn-sidebar" class="toolbar-btn" title="Toggle Sidebar">
+        <span class="icon">📁</span>
+      </button>
+      <button id="btn-export" class="toolbar-btn" title="Export">
+        <span class="icon">⬇</span>
+      </button>
+      <button id="btn-theme" class="toolbar-btn" title="Toggle Theme">
+        <span class="icon" id="theme-icon">🌙</span>
+      </button>
+      <div class="toolbar-divider"></div>
+      <span id="file-name" class="toolbar-filename">untitled.md</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="app" class="app-container">
+    <!-- Sidebar (hidden by default) -->
+    <aside id="sidebar" class="sidebar hidden">
+      <div class="sidebar-header">
+        <span>Files</span>
+        <button id="btn-open-folder" class="toolbar-btn" title="Open Folder">📂+</button>
+      </div>
+      <div id="folder-tree" class="folder-tree"></div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Recent</span>
+        <ul id="recent-files" class="recent-files"></ul>
+      </div>
+    </aside>
+
+    <!-- Split Pane -->
+    <div id="split-pane" class="split-pane">
+      <!-- Editor -->
+      <div id="editor-pane" class="pane editor-pane">
+        <div class="pane-header">
+          <span>Editor</span>
+        </div>
+        <div id="editor-container" class="editor-container"></div>
+      </div>
+
+      <!-- Divider -->
+      <div id="divider" class="divider" title="Drag to resize"></div>
+
+      <!-- Preview -->
+      <div id="preview-pane" class="pane preview-pane">
+        <div class="pane-header">
+          <span>Preview</span>
+        </div>
+        <div id="preview-container" class="preview-container">
+          <div id="preview-content" class="markdown-body"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Drop Zone Overlay -->
+  <div id="drop-overlay" class="drop-overlay hidden">
+    <div class="drop-message">
+      <span class="drop-icon">📄</span>
+      <span>Drop .md file here</span>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

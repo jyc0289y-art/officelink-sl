@@ -1,0 +1,126 @@
+// MarkLink SL — CodeMirror 6 Editor Setup
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState, Compartment } from '@codemirror/state';
+import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
+import { languages } from '@codemirror/language-data';
+import { lightTheme, darkTheme } from './theme.js';
+import { getExtensions } from './extensions.js';
+
+// Theme compartment for dynamic switching
+const themeCompartment = new Compartment();
+
+let editorView = null;
+
+// Callbacks
+let onChangeCallback = null;
+
+/**
+ * Initialize the CodeMirror 6 editor
+ * @param {HTMLElement} container - DOM element to mount editor
+ * @param {string} initialContent - Initial markdown content
+ * @param {boolean} isDark - Whether to use dark theme
+ * @returns {EditorView}
+ */
+export function createEditor(container, initialContent = '', isDark = false) {
+  const state = EditorState.create({
+    doc: initialContent,
+    extensions: [
+      basicSetup,
+      markdown({
+        base: markdownLanguage,
+        codeLanguages: languages,
+      }),
+      themeCompartment.of(isDark ? darkTheme : lightTheme),
+      ...getExtensions(),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged && onChangeCallback) {
+          onChangeCallback(update.state.doc.toString());
+        }
+      }),
+      EditorView.lineWrapping,
+    ],
+  });
+
+  editorView = new EditorView({
+    state,
+    parent: container,
+  });
+
+  return editorView;
+}
+
+/**
+ * Set callback for document changes
+ */
+export function onChange(callback) {
+  onChangeCallback = callback;
+}
+
+/**
+ * Get the current editor content
+ */
+export function getContent() {
+  return editorView ? editorView.state.doc.toString() : '';
+}
+
+/**
+ * Set editor content
+ */
+export function setContent(text) {
+  if (!editorView) return;
+  editorView.dispatch({
+    changes: {
+      from: 0,
+      to: editorView.state.doc.length,
+      insert: text,
+    },
+  });
+}
+
+/**
+ * Switch theme (dark/light)
+ */
+export function setTheme(isDark) {
+  if (!editorView) return;
+  editorView.dispatch({
+    effects: themeCompartment.reconfigure(isDark ? darkTheme : lightTheme),
+  });
+}
+
+/**
+ * Insert text at cursor position
+ */
+export function insertAtCursor(text) {
+  if (!editorView) return;
+  const pos = editorView.state.selection.main.head;
+  editorView.dispatch({
+    changes: { from: pos, insert: text },
+    selection: { anchor: pos + text.length },
+  });
+  editorView.focus();
+}
+
+/**
+ * Wrap selected text with prefix/suffix
+ */
+export function wrapSelection(prefix, suffix = prefix) {
+  if (!editorView) return;
+  const { from, to } = editorView.state.selection.main;
+  const selected = editorView.state.sliceDoc(from, to);
+  const wrapped = prefix + (selected || 'text') + suffix;
+  editorView.dispatch({
+    changes: { from, to, insert: wrapped },
+    selection: {
+      anchor: from + prefix.length,
+      head: from + prefix.length + (selected ? selected.length : 4),
+    },
+  });
+  editorView.focus();
+}
+
+/**
+ * Get the EditorView instance
+ */
+export function getEditorView() {
+  return editorView;
+}

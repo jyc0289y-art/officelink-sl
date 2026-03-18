@@ -1,0 +1,57 @@
+// MarkLink SL — Resizable Split Pane
+
+/**
+ * Initialize resizable split pane
+ * @param {HTMLElement} divider - The divider element
+ * @param {HTMLElement} leftPane - Left (editor) pane
+ * @param {HTMLElement} rightPane - Right (preview) pane
+ */
+export function initSplitPane(divider, leftPane, rightPane) {
+  let isDragging = false;
+  let startX = 0;
+  let startLeftWidth = 0;
+
+  divider.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startLeftWidth = leftPane.getBoundingClientRect().width;
+    divider.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const container = leftPane.parentElement;
+    const containerWidth = container.getBoundingClientRect().width;
+    const dividerWidth = divider.getBoundingClientRect().width;
+
+    let newLeftWidth = startLeftWidth + dx;
+    const minWidth = 200;
+    const maxWidth = containerWidth - dividerWidth - minWidth;
+
+    newLeftWidth = Math.max(minWidth, Math.min(maxWidth, newLeftWidth));
+
+    const leftRatio = newLeftWidth / (containerWidth - dividerWidth);
+    const rightRatio = 1 - leftRatio;
+
+    leftPane.style.flex = `${leftRatio}`;
+    rightPane.style.flex = `${rightRatio}`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    divider.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+
+  // Double-click divider to reset to 50/50
+  divider.addEventListener('dblclick', () => {
+    leftPane.style.flex = '1';
+    rightPane.style.flex = '1';
+  });
+}

@@ -1,0 +1,40 @@
+/* MarkLink SL — Light Theme */
+:root,
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --toolbar-bg: #f5f5f7;
+  --sidebar-bg: #f8f9fa;
+  --pane-header-bg: #f5f5f7;
+  --preview-bg: #ffffff;
+
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #aeaeb2;
+
+  --border-color: #e5e5ea;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --active-bg: rgba(0, 0, 0, 0.1);
+
+  --brand-color: #0071e3;
+  --brand-color-light: rgba(0, 113, 227, 0.1);
+
+  --code-bg: #f4f4f8;
+  --code-text: #e83e8c;
+  --code-block-bg: #f8f8fc;
+
+  --blockquote-border: #e5e5ea;
+  --blockquote-bg: #f8f9fa;
+  --blockquote-text: #6e6e73;
+
+  --table-border: #e5e5ea;
+  --table-header-bg: #f5f5f7;
+  --table-stripe-bg: #fafafa;
+
+  --link-color: #0071e3;
+  --link-hover-color: #0058b0;
+
+  --scrollbar-track: #f0f0f0;
+  --scrollbar-thumb: #c7c7cc;
+  --scrollbar-thumb-hover: #a8a8ad;
+}
