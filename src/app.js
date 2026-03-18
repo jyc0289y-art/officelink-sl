@@ -14,6 +14,7 @@ import { renderRecentFiles } from './file/recent-files.js';
 import { openFolder } from './file/folder-tree.js';
 import { printDocument } from './export/print.js';
 import { exportHTML } from './export/html.js';
+import { exportPDF } from './export/pdf.js';
 
 // Default welcome content
 const WELCOME_MD = `# Welcome to MarkLink SL ✦
@@ -278,7 +279,7 @@ function showExportMenu(anchorBtn) {
 
   const items = [
     { label: '🖨️ Print', action: () => printDocument(getContent(), getCurrentFileName()) },
-    { label: '📄 Export as PDF', action: () => printDocument(getContent(), getCurrentFileName()) },
+    { label: '📄 Export as PDF', action: () => exportPDF(getContent(), getCurrentFileName()) },
     { label: '🌐 Export as HTML', action: () => exportHTML(getContent(), getCurrentFileName()) },
   ];
 
