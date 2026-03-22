@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/src/styles/sheet.css" />
   <link rel="stylesheet" href="/src/styles/slide.css" />
   <link rel="stylesheet" href="/src/styles/pdf.css" />
+  <link rel="stylesheet" href="/src/styles/ai-chat.css" />
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -66,6 +67,9 @@
       </button>
       <button id="btn-export" class="toolbar-btn" title="Export">
         <span class="icon">⬇</span>
+      </button>
+      <button id="btn-ai" class="toolbar-btn" title="AI Assistant (Local LLM — Free, Private, No Cloud)">
+        <span class="icon">AI</span>
       </button>
       <button id="btn-theme" class="toolbar-btn" title="Toggle Theme">
         <span class="icon" id="theme-icon">🌙</span>
@@ -171,8 +175,28 @@
         <button class="toolbar-btn" id="doc-insert-table" title="Insert Table">▦</button>
         <button class="toolbar-btn" id="doc-insert-hr" title="Horizontal Rule">―</button>
         <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="doc-undo" title="Undo (⌘Z)">↩</button>
+        <button class="toolbar-btn" id="doc-redo" title="Redo (⌘⇧Z)">↪</button>
+        <div class="toolbar-divider"></div>
         <button class="toolbar-btn" id="doc-import-hwpx" title="Import HWPX (한컴)" style="font-size:11px">HWPX↑</button>
         <button class="toolbar-btn" id="doc-export-hwpx" title="Export HWPX (한컴)" style="font-size:11px">HWPX↓</button>
+        <button class="toolbar-btn" id="doc-import-docx" title="Import DOCX" style="font-size:11px">DOCX↑</button>
+        <button class="toolbar-btn" id="doc-export-docx" title="Export DOCX" style="font-size:11px">DOCX↓</button>
+      </div>
+      <!-- Find/Replace Bar -->
+      <div id="doc-find-bar" class="doc-find-bar hidden">
+        <div class="doc-find-row">
+          <input type="text" id="doc-find-input" class="doc-find-input" placeholder="Find...">
+          <button class="toolbar-btn" id="doc-find-prev" title="Previous">&#9650;</button>
+          <button class="toolbar-btn" id="doc-find-next" title="Next">&#9660;</button>
+          <span id="doc-find-count" class="doc-find-count"></span>
+          <button class="toolbar-btn" id="doc-find-close" title="Close">&times;</button>
+        </div>
+        <div class="doc-replace-row">
+          <input type="text" id="doc-replace-input" class="doc-find-input" placeholder="Replace with...">
+          <button class="toolbar-btn" id="doc-replace-btn" title="Replace">Replace</button>
+          <button class="toolbar-btn" id="doc-replace-all" title="Replace All">All</button>
+        </div>
       </div>
       <div class="doc-page-wrapper">
         <div id="doc-editor" class="doc-editor" contenteditable="true" spellcheck="true">
@@ -180,6 +204,7 @@
           <p>Start typing here...</p>
         </div>
       </div>
+      <div id="doc-status-bar" class="doc-status-bar">Words: 0  |  Characters: 0  |  Paragraphs: 0</div>
     </div>
     <!-- Sheet View -->
     <div id="view-sheet" class="app-view">
@@ -276,6 +301,39 @@
       </div>
     </div>
   </main>
+
+  <!-- AI Chat Panel -->
+  <aside id="ai-panel" class="ai-panel">
+    <div class="ai-panel-header">
+      <span id="ai-status-dot" class="ai-status-dot offline" title="Checking..."></span>
+      <h3>MarkLink AI</h3>
+      <select id="ai-model-select" title="AI Model">
+        <option value="">Checking...</option>
+      </select>
+      <button id="ai-panel-close" class="toolbar-btn" title="Close">&times;</button>
+    </div>
+    <div id="ai-chat-list" class="ai-chat-list">
+      <div class="ai-msg ai-msg-system">
+        AI assistant powered by local LLM. Your data stays on your device.
+      </div>
+    </div>
+    <div class="ai-input-area">
+      <div class="ai-context-btns">
+        <button class="ai-ctx-btn" id="ai-ctx-doc" title="Attach current document content">+ Document</button>
+        <button class="ai-ctx-btn" id="ai-ctx-sheet" title="Attach current sheet data">+ Sheet</button>
+        <button class="ai-ctx-btn" id="ai-ctx-selection" title="Attach selected text">+ Selection</button>
+      </div>
+      <div class="ai-input-row">
+        <textarea id="ai-chat-input" class="ai-chat-input" rows="1" placeholder="Ask AI anything..."></textarea>
+        <button id="ai-send-btn" class="ai-send-btn" title="Send">&#9654;</button>
+      </div>
+    </div>
+    <div class="ai-bottom-actions">
+      <button class="ai-action-btn" id="ai-insert-btn" title="Insert last AI response into the editor">Insert to Editor</button>
+      <button class="ai-action-btn" id="ai-setup-btn" title="Install Ollama and manage AI models">AI Setup</button>
+      <button class="ai-action-btn" id="ai-clear-btn" title="Clear chat history">Clear</button>
+    </div>
+  </aside>
 
   <!-- Drop Zone Overlay -->
   <div id="drop-overlay" class="drop-overlay hidden">

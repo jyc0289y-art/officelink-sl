@@ -158,53 +158,245 @@ function evaluate(sheet, raw) {
 }
 
 /**
- * Simple formula evaluator
- * Supports: SUM, AVERAGE, COUNT, MIN, MAX, IF, and basic arithmetic
+ * Sort sheet rows by a column
+ */
+export function sortByColumn(sheet, colIdx, ascending = true) {
+  // Gather all occupied rows
+  const rowData = {};
+  for (const [key, cell] of Object.entries(sheet.cells)) {
+    const [r, c] = key.split(',').map(Number);
+    if (!rowData[r]) rowData[r] = {};
+    rowData[r][c] = cell;
+  }
+
+  const rowIndices = Object.keys(rowData).map(Number).sort((a, b) => a - b);
+  if (rowIndices.length === 0) return;
+
+  // Sort rows by the target column value
+  rowIndices.sort((a, b) => {
+    const va = rowData[a]?.[colIdx]?.value ?? '';
+    const vb = rowData[b]?.[colIdx]?.value ?? '';
+    const na = Number(va), nb = Number(vb);
+    const isNumA = !isNaN(na) && va !== '', isNumB = !isNaN(nb) && vb !== '';
+    let cmp;
+    if (isNumA && isNumB) cmp = na - nb;
+    else cmp = String(va).localeCompare(String(vb));
+    return ascending ? cmp : -cmp;
+  });
+
+  // Rewrite cells with new row order
+  const newCells = {};
+  rowIndices.forEach((origRow, newRow) => {
+    const row = rowData[origRow];
+    if (!row) return;
+    for (const [c, cell] of Object.entries(row)) {
+      newCells[cellKey(newRow, Number(c))] = { ...cell };
+    }
+  });
+  sheet.cells = newCells;
+}
+
+/**
+ * Formula evaluator
+ * Supports: SUM, AVERAGE, COUNT, COUNTA, MIN, MAX, IF, SUMIF, COUNTIF,
+ *   VLOOKUP, CONCATENATE/CONCAT, LEFT, RIGHT, MID, LEN, TRIM,
+ *   UPPER, LOWER, ROUND, ABS, TODAY, NOW, and basic arithmetic
  */
 function evalFormula(sheet, expr) {
-  // SUM(range)
-  const sumMatch = expr.match(/^SUM\((.+)\)$/);
-  if (sumMatch) {
-    const vals = resolveRange(sheet, sumMatch[1]);
-    return vals.reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0);
-  }
+  // Match function pattern: FUNCNAME(args)
+  const fnMatch = expr.match(/^([A-Z]+)\((.+)\)$/);
+  if (fnMatch) {
+    const fn = fnMatch[1];
+    const argsStr = fnMatch[2];
 
-  // AVERAGE(range)
-  const avgMatch = expr.match(/^AVERAGE\((.+)\)$/);
-  if (avgMatch) {
-    const vals = resolveRange(sheet, avgMatch[1]).filter(v => typeof v === 'number');
-    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-  }
-
-  // COUNT(range)
-  const cntMatch = expr.match(/^COUNT\((.+)\)$/);
-  if (cntMatch) {
-    return resolveRange(sheet, cntMatch[1]).filter(v => typeof v === 'number').length;
-  }
-
-  // MIN(range)
-  const minMatch = expr.match(/^MIN\((.+)\)$/);
-  if (minMatch) {
-    const vals = resolveRange(sheet, minMatch[1]).filter(v => typeof v === 'number');
-    return vals.length ? Math.min(...vals) : 0;
-  }
-
-  // MAX(range)
-  const maxMatch = expr.match(/^MAX\((.+)\)$/);
-  if (maxMatch) {
-    const vals = resolveRange(sheet, maxMatch[1]).filter(v => typeof v === 'number');
-    return vals.length ? Math.max(...vals) : 0;
-  }
-
-  // IF(condition, trueVal, falseVal)
-  const ifMatch = expr.match(/^IF\((.+),(.+),(.+)\)$/);
-  if (ifMatch) {
-    const cond = evalSimpleExpr(sheet, ifMatch[1].trim());
-    return cond ? evalSimpleExpr(sheet, ifMatch[2].trim()) : evalSimpleExpr(sheet, ifMatch[3].trim());
+    switch (fn) {
+      case 'SUM': {
+        const vals = resolveRange(sheet, argsStr);
+        return vals.reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0);
+      }
+      case 'AVERAGE': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      }
+      case 'COUNT': {
+        return resolveRange(sheet, argsStr).filter(v => typeof v === 'number').length;
+      }
+      case 'COUNTA': {
+        return resolveRange(sheet, argsStr).filter(v => v !== '' && v != null).length;
+      }
+      case 'MIN': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        return vals.length ? Math.min(...vals) : 0;
+      }
+      case 'MAX': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        return vals.length ? Math.max(...vals) : 0;
+      }
+      case 'IF': {
+        const args = splitArgs(argsStr);
+        if (args.length < 3) return '#ERROR';
+        const cond = evalSimpleExpr(sheet, args[0]);
+        return cond ? evalSimpleExpr(sheet, args[1]) : evalSimpleExpr(sheet, args[2]);
+      }
+      case 'SUMIF': {
+        const args = splitArgs(argsStr);
+        if (args.length < 2) return '#ERROR';
+        const range = resolveRange(sheet, args[0]);
+        const criteria = evalSimpleExpr(sheet, args[1]);
+        const sumRange = args[2] ? resolveRange(sheet, args[2]) : range;
+        let sum = 0;
+        for (let i = 0; i < range.length; i++) {
+          if (matchCriteria(range[i], criteria)) {
+            const v = sumRange[i];
+            if (typeof v === 'number') sum += v;
+          }
+        }
+        return sum;
+      }
+      case 'COUNTIF': {
+        const args = splitArgs(argsStr);
+        if (args.length < 2) return '#ERROR';
+        const range = resolveRange(sheet, args[0]);
+        const criteria = evalSimpleExpr(sheet, args[1]);
+        return range.filter(v => matchCriteria(v, criteria)).length;
+      }
+      case 'VLOOKUP': {
+        const args = splitArgs(argsStr);
+        if (args.length < 3) return '#ERROR';
+        const lookupVal = evalSimpleExpr(sheet, args[0]);
+        const tableRange = resolveRangeAsTable(sheet, args[1]);
+        const colIndex = Number(evalSimpleExpr(sheet, args[2])) - 1;
+        for (const row of tableRange) {
+          if (row[0] == lookupVal || String(row[0]) === String(lookupVal)) {
+            return colIndex < row.length ? row[colIndex] : '#REF';
+          }
+        }
+        return '#N/A';
+      }
+      case 'CONCATENATE':
+      case 'CONCAT': {
+        const args = splitArgs(argsStr);
+        return args.map(a => {
+          const v = evalSimpleExpr(sheet, a);
+          return v != null ? String(v).replace(/^"|"$/g, '') : '';
+        }).join('');
+      }
+      case 'LEFT': {
+        const args = splitArgs(argsStr);
+        const text = String(evalSimpleExpr(sheet, args[0])).replace(/^"|"$/g, '');
+        const n = args[1] ? Number(evalSimpleExpr(sheet, args[1])) : 1;
+        return text.substring(0, n);
+      }
+      case 'RIGHT': {
+        const args = splitArgs(argsStr);
+        const text = String(evalSimpleExpr(sheet, args[0])).replace(/^"|"$/g, '');
+        const n = args[1] ? Number(evalSimpleExpr(sheet, args[1])) : 1;
+        return text.slice(-n);
+      }
+      case 'MID': {
+        const args = splitArgs(argsStr);
+        const text = String(evalSimpleExpr(sheet, args[0])).replace(/^"|"$/g, '');
+        const start = Number(evalSimpleExpr(sheet, args[1])) - 1;
+        const len = Number(evalSimpleExpr(sheet, args[2]));
+        return text.substring(start, start + len);
+      }
+      case 'LEN': {
+        const text = String(evalSimpleExpr(sheet, argsStr)).replace(/^"|"$/g, '');
+        return text.length;
+      }
+      case 'TRIM': {
+        return String(evalSimpleExpr(sheet, argsStr)).replace(/^"|"$/g, '').trim();
+      }
+      case 'UPPER': {
+        return String(evalSimpleExpr(sheet, argsStr)).replace(/^"|"$/g, '').toUpperCase();
+      }
+      case 'LOWER': {
+        return String(evalSimpleExpr(sheet, argsStr)).replace(/^"|"$/g, '').toLowerCase();
+      }
+      case 'ROUND': {
+        const args = splitArgs(argsStr);
+        const num = Number(evalSimpleExpr(sheet, args[0]));
+        const digits = args[1] ? Number(evalSimpleExpr(sheet, args[1])) : 0;
+        return Math.round(num * Math.pow(10, digits)) / Math.pow(10, digits);
+      }
+      case 'ABS': {
+        return Math.abs(Number(evalSimpleExpr(sheet, argsStr)));
+      }
+      case 'TODAY': {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      }
+      case 'NOW': {
+        return new Date().toLocaleString();
+      }
+    }
   }
 
   // Basic arithmetic with cell references
   return evalSimpleExpr(sheet, expr);
+}
+
+/** Split function arguments respecting nested parentheses */
+function splitArgs(str) {
+  const args = [];
+  let depth = 0, current = '';
+  for (const ch of str) {
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    if (ch === ',' && depth === 0) {
+      args.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  if (current.trim()) args.push(current.trim());
+  return args;
+}
+
+/** Match SUMIF/COUNTIF criteria (number comparison or string match) */
+function matchCriteria(value, criteria) {
+  const cs = String(criteria).replace(/^"|"$/g, '');
+  const cMatch = cs.match(/^([<>=!]+)(.+)$/);
+  if (cMatch) {
+    const op = cMatch[1];
+    const cval = Number(cMatch[2]);
+    const nval = Number(value);
+    if (!isNaN(cval) && !isNaN(nval)) {
+      if (op === '>') return nval > cval;
+      if (op === '<') return nval < cval;
+      if (op === '>=') return nval >= cval;
+      if (op === '<=') return nval <= cval;
+      if (op === '<>' || op === '!=') return nval !== cval;
+      if (op === '=') return nval === cval;
+    }
+  }
+  return String(value).toLowerCase() === cs.toLowerCase();
+}
+
+/** Resolve range as 2D table (for VLOOKUP) */
+function resolveRangeAsTable(sheet, rangeStr) {
+  const part = rangeStr.trim();
+  if (!part.includes(':')) return [];
+  const [startRef, endRef] = part.split(':');
+  const start = refToRC(startRef.trim());
+  const end = refToRC(endRef.trim());
+  if (!start || !end) return [];
+  const r1 = Math.min(start[0], end[0]);
+  const r2 = Math.max(start[0], end[0]);
+  const c1 = Math.min(start[1], end[1]);
+  const c2 = Math.max(start[1], end[1]);
+  const table = [];
+  for (let r = r1; r <= r2; r++) {
+    const row = [];
+    for (let c = c1; c <= c2; c++) {
+      const v = getDisplayValue(sheet, r, c);
+      const num = Number(v);
+      row.push(isNaN(num) || v === '' ? v : num);
+    }
+    table.push(row);
+  }
+  return table;
 }
 
 /**

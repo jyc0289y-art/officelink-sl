@@ -19,11 +19,12 @@ import { trackFileOpen, trackFileSave, trackExport, trackThemeToggle, trackToolb
 import { initTabs, onTabChange, getCurrentTab } from './ui/tabs.js';
 import { initDocEditor, getDocContent } from './document/doc-editor.js';
 import { openDocFile, saveDocFile, quickSaveDoc, getDocFileName, setDocFileName } from './document/doc-file.js';
-import { initSheetEditor } from './sheet/sheet-ui.js';
+import { initSheetEditor, getSheetsData } from './sheet/sheet-ui.js';
 import { openSheetFile, saveSheetFile, getSheetFileName } from './sheet/sheet-file.js';
 import { initSlideEditor } from './slide/slide-editor.js';
 import { openSlideFile, saveSlideFile, getSlideFileName } from './slide/slide-file.js';
 import { initPdfViewer, getPdfFileName } from './pdf/pdf-viewer.js';
+import { initAiChat, setContextProviders } from './ai/ai-chat.js';
 
 // Default welcome content
 const WELCOME_MD = `# Welcome to MarkLink SL ✦
@@ -328,7 +329,34 @@ export async function initApp() {
     else updateFileName(getCurrentFileName());
   });
 
-  // 18. Analytics — session duration tracking
+  // 18. AI Chat (Local LLM)
+  initAiChat();
+  setContextProviders({
+    getDocContent: () => getDocContent(),
+    getSheetText: () => {
+      try { return JSON.stringify(getSheetsData()); }
+      catch { return ''; }
+    },
+    getMarkdownContent: () => getContent(),
+    insertContent: (text) => {
+      const tab = getCurrentTab();
+      if (tab === 'document') {
+        // Insert at cursor in document editor
+        const docEl = document.getElementById('doc-editor');
+        if (docEl) {
+          docEl.focus();
+          document.execCommand('insertHTML', false, text.replace(/\n/g, '<br>'));
+        }
+      } else {
+        // Insert at cursor in markdown editor
+        const content = getContent();
+        setContent(content + '\n\n' + text);
+        updatePreviewImmediate(getContent());
+      }
+    },
+  });
+
+  // 19. Analytics — session duration tracking
   initSessionTracking();
 }
 
