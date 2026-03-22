@@ -90,11 +90,9 @@ export function initDocEditor() {
     editorEl.focus();
   });
 
-  // Insert image
+  // Insert image — dialog with URL input or file browse
   document.getElementById('doc-insert-image')?.addEventListener('click', () => {
-    const url = prompt('Enter image URL:');
-    if (url) document.execCommand('insertImage', false, url);
-    editorEl.focus();
+    showImageInsertDialog();
   });
 
   // Insert table
@@ -530,4 +528,106 @@ function applyHeaderFooter(headerText, footerText) {
     footer.textContent = footerText;
     wrapper.appendChild(footer);
   }
+}
+
+// ─── Image Insert Dialog ────────────────────────────────────
+function showImageInsertDialog() {
+  document.querySelector('.doc-img-dialog')?.remove();
+
+  const dialog = document.createElement('div');
+  dialog.className = 'ai-setup-modal doc-img-dialog';
+  dialog.innerHTML = `
+    <div class="ai-setup-content" style="width:420px">
+      <div class="ai-setup-header">
+        <h3>Insert Image</h3>
+        <button class="ai-setup-close">&times;</button>
+      </div>
+      <div class="ai-setup-body">
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Browse from your device</label>
+          <div id="img-drop-zone" style="border:2px dashed var(--border-color);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s">
+            <span style="font-size:32px;display:block;margin-bottom:8px">🖼</span>
+            <span style="font-size:13px;color:var(--text-secondary)">Click to browse or drag & drop an image here</span>
+            <input type="file" id="img-file-input" accept="image/*" style="display:none">
+          </div>
+          <div id="img-preview" style="display:none;margin-top:12px;text-align:center">
+            <img id="img-preview-el" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border-color)">
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Or enter URL</label>
+          <input type="text" id="img-url-input" class="doc-find-input" style="width:100%" placeholder="https://example.com/image.png">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="ai-pull-btn" id="img-cancel">Cancel</button>
+          <button class="ai-pull-btn" id="img-insert" style="background:var(--brand-color);color:#fff">Insert</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(dialog);
+
+  let selectedDataUrl = '';
+
+  const fileInput = dialog.querySelector('#img-file-input');
+  const dropZone = dialog.querySelector('#img-drop-zone');
+  const previewDiv = dialog.querySelector('#img-preview');
+  const previewImg = dialog.querySelector('#img-preview-el');
+  const urlInput = dialog.querySelector('#img-url-input');
+
+  // Click to browse
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  // File selected
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleImageFile(fileInput.files[0]);
+  });
+
+  // Drag and drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--brand-color)';
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = 'var(--border-color)';
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--border-color)';
+    const file = e.dataTransfer?.files[0];
+    if (file && file.type.startsWith('image/')) handleImageFile(file);
+  });
+
+  function handleImageFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      selectedDataUrl = e.target.result;
+      previewImg.src = selectedDataUrl;
+      previewDiv.style.display = '';
+      urlInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Close
+  dialog.querySelector('.ai-setup-close')?.addEventListener('click', () => dialog.remove());
+  dialog.querySelector('#img-cancel')?.addEventListener('click', () => dialog.remove());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.remove(); });
+
+  // Insert
+  dialog.querySelector('#img-insert')?.addEventListener('click', () => {
+    const src = selectedDataUrl || urlInput.value.trim();
+    if (!src) return;
+
+    editorEl?.focus();
+    // Use insertImage command for URL, or insert <img> for data URL
+    if (src.startsWith('data:')) {
+      insertHTMLAtCursor(`<img src="${src}" style="max-width:100%" />`);
+    } else {
+      document.execCommand('insertImage', false, src);
+    }
+    dirty = true;
+    dialog.remove();
+  });
 }
