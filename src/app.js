@@ -400,6 +400,11 @@ export async function initApp() {
   // 21. First-time user onboarding tour
   initOnboardingTour();
 
+  // 21b. Tab-specific feature tours (triggers on first visit to each tab)
+  onTabChange((tab) => {
+    showTabFeatureTour(tab);
+  });
+
   // 22. Tutorial button — restart tour
   const tutorialBtn = document.getElementById('btn-tutorial');
   if (tutorialBtn) {
@@ -513,41 +518,60 @@ function startOnboardingTour() {
   const doneLabel = { en: 'Done', ko: '완료', ja: '完了', zh: '完成', es: 'Listo', fr: 'Terminé' };
 
   const steps = [
+    // ── Toolbar basics (left → right) ──
     {
       target: '#btn-open',
-      text: { en: 'Open files here, or drag & drop them onto the app.', ko: '여기서 파일을 열거나 앱에 드래그&드롭하세요.', ja: 'ここでファイルを開くか、アプリにドラッグ&ドロップしてください。', zh: '在这里打开文件，或将文件拖放到应用中。', es: 'Abre archivos aquí o arrástralos a la aplicación.', fr: 'Ouvrez des fichiers ici ou glissez-déposez-les dans l\'application.' },
+      text: { en: 'Open files here, or drag & drop them onto the app.', ko: '여기서 파일을 열거나 앱에 드래그&드롭하세요.', ja: 'ここでファイルを開くか、ドラッグ&ドロップ。', zh: '在这里打开文件，或拖放到应用中。', es: 'Abre archivos aquí o arrástralos.', fr: 'Ouvrez ou glissez-déposez des fichiers.' },
     },
     {
       target: '#btn-save',
-      text: { en: 'Save your current work. Your changes are preserved locally.', ko: '현재 작업을 저장합니다. 변경사항이 로컬에 보존됩니다.', ja: '現在の作業を保存します。変更はローカルに保存されます。', zh: '保存当前工作。您的更改将保存在本地。', es: 'Guarda tu trabajo actual. Los cambios se conservan localmente.', fr: 'Enregistrez votre travail. Vos modifications sont conservées localement.' },
+      text: { en: 'Save your work locally — no account needed.', ko: '로컬에 저장 — 계정 불필요.', ja: 'ローカルに保存 — アカウント不要。', zh: '本地保存 — 无需账户。', es: 'Guarda localmente — sin cuenta.', fr: 'Sauvegardez localement — sans compte.' },
+    },
+    // ── Tab-by-tab feature introduction ──
+    {
+      target: '[data-tab="document"]',
+      text: { en: '📝 Document: Full word processor with fonts, headings, bold/italic/underline, tables, images, links, auto Table of Contents, headers/footers, page numbers. Import/export DOCX & HWPX.', ko: '📝 Document: 글꼴, 제목, B/I/U, 표, 이미지, 링크, 자동 목차, 머리말/꼬리말, 페이지 번호. DOCX & HWPX 가져오기/내보내기.', ja: '📝 Document: フォント・見出し・太字/斜体/下線・テーブル・画像・リンク・自動目次・ヘッダー/フッター・ページ番号。DOCX & HWPX入出力。', zh: '📝 Document: 字体、标题、加粗/斜体/下划线、表格、图片、链接、自动目录、页眉/页脚、页码。导入/导出DOCX和HWPX。', es: '📝 Document: Fuentes, títulos, B/I/U, tablas, imágenes, TOC automático, encabezados/pies. Import/export DOCX & HWPX.', fr: '📝 Document: Polices, titres, B/I/U, tableaux, images, TOC auto, en-têtes/pieds. Import/export DOCX & HWPX.' },
     },
     {
-      target: '.tab-bar',
-      text: { en: 'Switch between Document, Sheet, Slide, PDF, Markdown, and AI tabs to access different editors.', ko: 'Document, Sheet, Slide, PDF, Markdown, AI 탭을 전환하여 다양한 편집기에 접근합니다.', ja: 'Document、Sheet、Slide、PDF、Markdown、AIタブを切り替えて各エディタにアクセスします。', zh: '切换Document、Sheet、Slide、PDF、Markdown和AI选项卡以访问不同的编辑器。', es: 'Cambia entre las pestañas Document, Sheet, Slide, PDF, Markdown y AI para acceder a diferentes editores.', fr: 'Basculez entre les onglets Document, Sheet, Slide, PDF, Markdown et AI pour accéder aux différents éditeurs.' },
+      target: '[data-tab="sheet"]',
+      text: { en: '📊 Sheet: Full spreadsheet with 40+ formulas (SUM, AVERAGE, VLOOKUP, IF), scientific functions (SIN, COS, LOG, CONVERT), cell formatting, multi-sheet tabs, sorting.', ko: '📊 Sheet: 40+ 수식(SUM, AVERAGE, VLOOKUP, IF), 과학함수(SIN, COS, LOG, CONVERT), 셀 서식, 다중 시트, 정렬 지원.', ja: '📊 Sheet: 40+関数（SUM, AVERAGE, VLOOKUP, IF）、科学関数（SIN, COS, LOG, CONVERT）、セル書式、複数シート、ソート。', zh: '📊 Sheet: 40+公式（SUM、AVERAGE、VLOOKUP、IF）、科学函数（SIN、COS、LOG、CONVERT）、单元格格式、多工作表、排序。', es: '📊 Sheet: 40+ fórmulas, funciones científicas, formato de celdas, múltiples hojas.', fr: '📊 Sheet: 40+ formules, fonctions scientifiques, mise en forme, multi-feuilles.' },
     },
+    {
+      target: '[data-tab="slide"]',
+      text: { en: '🎬 Slide: Create presentations with 5 layouts (Title, Content, Two Columns, Blank, Image), 4 themes, fullscreen presentation mode (F5), speaker notes.', ko: '🎬 Slide: 5가지 레이아웃(제목, 내용, 2단, 빈 슬라이드, 이미지), 4가지 테마, 전체화면 프레젠테이션(F5), 발표자 노트.', ja: '🎬 Slide: 5レイアウト、4テーマ、フルスクリーンプレゼン（F5）、発表者ノート。', zh: '🎬 Slide: 5种布局、4种主题、全屏演示（F5）、演讲者备注。', es: '🎬 Slide: 5 layouts, 4 temas, presentación pantalla completa (F5), notas del orador.', fr: '🎬 Slide: 5 mises en page, 4 thèmes, présentation plein écran (F5), notes.' },
+    },
+    {
+      target: '[data-tab="pdf"]',
+      text: { en: '📄 PDF: View any PDF, zoom/fit, and convert Markdown or Documents to PDF. AI Vision can analyze formulas and images in PDFs.', ko: '📄 PDF: PDF 뷰어, 확대/축소, Markdown/Document를 PDF로 변환. AI Vision이 수식/이미지 분석 가능.', ja: '📄 PDF: PDF閲覧・ズーム・Markdown/DocumentをPDF変換。AI Visionで数式/画像分析。', zh: '📄 PDF: 查看PDF、缩放、将Markdown/Document转换为PDF。AI Vision可分析公式和图片。', es: '📄 PDF: Ver PDF, zoom, convertir Markdown/Document a PDF. AI Vision analiza fórmulas e imágenes.', fr: '📄 PDF: Visualiser, zoomer, convertir en PDF. AI Vision analyse formules et images.' },
+    },
+    {
+      target: '[data-tab="markdown"]',
+      text: { en: '✍️ Markdown: Split-view editor with live preview. Supports KaTeX math ($E=mc^2$), Mermaid diagrams, syntax highlighting, task lists.', ko: '✍️ Markdown: 분할 뷰 에디터 + 실시간 미리보기. KaTeX 수식, Mermaid 다이어그램, 코드 하이라이팅, 체크리스트 지원.', ja: '✍️ Markdown: 分割ビュー+リアルタイムプレビュー。KaTeX数式・Mermaid図・コードハイライト・タスクリスト。', zh: '✍️ Markdown: 分屏编辑器+实时预览。支持KaTeX数学、Mermaid图表、代码高亮、任务列表。', es: '✍️ Markdown: Editor dividido con vista previa. KaTeX, Mermaid, resaltado de código.', fr: '✍️ Markdown: Éditeur divisé avec aperçu. KaTeX, Mermaid, coloration syntaxique.' },
+    },
+    // ── Toolbar right side ──
     {
       target: '#btn-export',
-      text: { en: 'Export your work as PDF, HTML, DOCX, or print directly.', ko: 'PDF, HTML, DOCX로 내보내기하거나 직접 인쇄하세요.', ja: 'PDF、HTML、DOCXでエクスポートするか、直接印刷してください。', zh: '将您的工作导出为PDF、HTML、DOCX或直接打印。', es: 'Exporta tu trabajo como PDF, HTML, DOCX o imprime directamente.', fr: 'Exportez votre travail en PDF, HTML, DOCX ou imprimez directement.' },
+      text: { en: 'Export your work as PDF, HTML, DOCX, or print directly.', ko: 'PDF, HTML, DOCX 내보내기 또는 직접 인쇄.', ja: 'PDF・HTML・DOCXエクスポートまたは直接印刷。', zh: '导出为PDF、HTML、DOCX或直接打印。', es: 'Exporta como PDF, HTML, DOCX o imprime.', fr: 'Exportez en PDF, HTML, DOCX ou imprimez.' },
     },
     {
       target: '#btn-ai',
-      text: { en: 'Quick AI access! Open the AI sidebar from any tab to analyze, translate, or summarize documents — runs free on your PC.', ko: '빠른 AI 접근! 어떤 탭에서든 AI 사이드바를 열어 문서 분석, 번역, 요약이 가능합니다. PC에서 무료로 동작합니다.', ja: 'クイックAIアクセス！どのタブからでもAIサイドバーを開いて文書の分析・翻訳・要約が可能です。PCで無料で動作します。', zh: '快速AI访问！从任何选项卡打开AI侧边栏来分析、翻译或总结文档——在您的PC上免费运行。', es: '¡Acceso rápido a IA! Abre la barra lateral de IA desde cualquier pestaña para analizar, traducir o resumir documentos — funciona gratis en tu PC.', fr: 'Accès rapide à l\'IA ! Ouvrez le panneau IA depuis n\'importe quel onglet pour analyser, traduire ou résumer des documents — fonctionne gratuitement sur votre PC.' },
+      text: { en: '✦ AI sidebar — quick access from any tab! Analyze, translate, summarize documents. Free, runs on your PC, no subscription.', ko: '✦ AI 사이드바 — 모든 탭에서 빠르게! 문서 분석, 번역, 요약. 무료, PC에서 동작, 구독료 없음.', ja: '✦ AIサイドバー — どのタブからでもアクセス！文書分析・翻訳・要約。無料、PCで動作。', zh: '✦ AI侧边栏 — 从任何选项卡快速访问！分析、翻译、总结。免费，在PC上运行。', es: '✦ IA lateral — acceso rápido! Analiza, traduce, resume. Gratis en tu PC.', fr: '✦ IA latéral — accès rapide ! Analyse, traduit, résume. Gratuit sur votre PC.' },
     },
     {
       target: '[data-tab="ai"]',
-      text: { en: 'Dedicated AI tab for the full AI experience. Chat with your documents, get writing help, and more.', ko: '전용 AI 탭에서 풀 AI 경험을 제공합니다. 문서와 대화하고, 작성 도움을 받으세요.', ja: '専用AIタブでフルAI体験を。文書とチャットしたり、執筆支援を受けたりできます。', zh: '专用AI选项卡提供完整的AI体验。与文档对话、获取写作帮助等。', es: 'Pestaña AI dedicada para la experiencia completa de IA. Chatea con tus documentos, obtén ayuda para escribir y más.', fr: 'Onglet IA dédié pour l\'expérience IA complète. Discutez avec vos documents, obtenez de l\'aide à la rédaction et plus.' },
+      text: { en: '✦ AI tab — full AI experience! Install free AI (Ollama), chat with documents, get writing help, translate, analyze PDFs with Vision AI. No cloud, no subscription.', ko: '✦ AI 탭 — 풀 AI 체험! 무료 AI(Ollama) 설치, 문서와 대화, 작성 도움, 번역, Vision AI로 PDF 분석. 클라우드/구독료 없음.', ja: '✦ AIタブ — フルAI体験！無料AI(Ollama)インストール、文書チャット、執筆支援、翻訳、Vision AIでPDF分析。', zh: '✦ AI标签页 — 完整AI体验！安装免费AI(Ollama)，与文档对话，写作帮助，翻译，Vision AI分析PDF。', es: '✦ IA — experiencia completa! Instala IA gratis (Ollama), chatea con documentos, traduce, analiza PDFs.', fr: '✦ IA — expérience complète ! Installez Ollama, discutez avec vos docs, traduisez, analysez les PDF.' },
     },
     {
       target: '#btn-fullscreen',
-      text: { en: 'Go fullscreen for a distraction-free experience — makes the app feel like a desktop application.', ko: '전체 화면으로 전환하여 집중 모드로 사용하세요. 데스크톱 앱처럼 사용할 수 있습니다.', ja: 'フルスクリーンで集中モードに。デスクトップアプリのように使えます。', zh: '全屏模式让您专注工作——使应用如同桌面应用一样运行。', es: 'Pantalla completa para una experiencia sin distracciones — la app se siente como una aplicación de escritorio.', fr: 'Passez en plein écran pour une expérience sans distraction — l\'application ressemble à une application de bureau.' },
+      text: { en: 'Go fullscreen! Use OfficeLink like a desktop app — no browser bars, maximum workspace.', ko: '전체 화면! 브라우저 없이 데스크톱 앱처럼 사용하세요.', ja: 'フルスクリーン！ブラウザバーなしでデスクトップアプリのように。', zh: '全屏！像桌面应用一样使用，无浏览器栏。', es: '¡Pantalla completa! Usa como app de escritorio.', fr: 'Plein écran ! Utilisez comme une app de bureau.' },
     },
     {
       target: '#lang-btn',
-      text: { en: 'Change your language anytime by clicking here. 30+ languages are supported!', ko: '여기를 클릭해서 언제든 언어를 변경할 수 있습니다. 30개 이상의 언어를 지원합니다!', ja: 'ここをクリックしていつでも言語を変更できます。30以上の言語をサポート！', zh: '随时点击这里更改语言。支持30多种语言！', es: '¡Cambia el idioma en cualquier momento haciendo clic aquí. Más de 30 idiomas disponibles!', fr: 'Changez la langue à tout moment en cliquant ici. Plus de 30 langues disponibles !' },
+      text: { en: '🌐 30+ languages supported! Change anytime.', ko: '🌐 30개 이상 언어 지원! 언제든 변경 가능.', ja: '🌐 30以上の言語対応！いつでも変更可能。', zh: '🌐 支持30多种语言！随时更改。', es: '🌐 30+ idiomas! Cambia cuando quieras.', fr: '🌐 30+ langues ! Changez quand vous voulez.' },
     },
     {
       target: '#btn-tutorial',
-      text: { en: 'Click here anytime to see this tutorial again!', ko: '언제든 여기를 클릭하면 이 튜토리얼을 다시 볼 수 있습니다!', ja: 'いつでもここをクリックしてこのチュートリアルを再表示できます！', zh: '随时点击这里再次查看此教程！', es: '¡Haz clic aquí en cualquier momento para ver este tutorial de nuevo!', fr: 'Cliquez ici à tout moment pour revoir ce tutoriel !' },
+      text: { en: 'Click here anytime to see this tutorial again!', ko: '언제든 여기를 클릭하면 이 튜토리얼을 다시 볼 수 있습니다!', ja: 'いつでもここでチュートリアル再表示！', zh: '随时点击这里再次查看教程！', es: '¡Haz clic para ver el tutorial de nuevo!', fr: 'Cliquez pour revoir le tutoriel !' },
     },
   ];
 
@@ -597,6 +621,113 @@ function startOnboardingTour() {
   }
 
   showStep(0);
+}
+
+/**
+ * Tab-specific feature tour — show once per tab on first visit
+ */
+const TAB_TOUR_PREFIX = 'officelink-tab-tour-';
+
+const TAB_TOURS = {
+  document: [
+    { target: '[data-cmd="bold"]', text: { en: 'Format text: Bold, Italic, Underline, Strikethrough', ko: '텍스트 서식: 굵게, 기울임, 밑줄, 취소선', ja: 'テキスト書式: 太字・斜体・下線・取り消し線', zh: '格式化文本：粗体、斜体、下划线、删除线' } },
+    { target: '#doc-font-family', text: { en: 'Choose fonts and sizes for your document', ko: '문서 글꼴과 크기를 선택하세요', ja: 'フォントとサイズを選択', zh: '选择文档字体和大小' } },
+    { target: '#doc-heading', text: { en: 'Add headings (H1-H3) to structure your document', ko: '제목(H1-H3)을 추가하여 문서를 구조화하세요', ja: '見出し（H1-H3）で文書を構造化', zh: '添加标题（H1-H3）来构建文档结构' } },
+    { target: '#doc-insert-table', text: { en: 'Insert tables, links, images, and horizontal rules', ko: '표, 링크, 이미지, 구분선을 삽입하세요', ja: 'テーブル・リンク・画像・水平線を挿入', zh: '插入表格、链接、图片和水平线' } },
+    { target: '#doc-insert-toc', text: { en: 'Auto-generate Table of Contents from your headings', ko: '제목 기반으로 목차를 자동 생성합니다', ja: '見出しから目次を自動生成', zh: '从标题自动生成目录' } },
+    { target: '#doc-import-docx', text: { en: 'Import/export DOCX and HWPX (Korean) formats', ko: 'DOCX, HWPX(한컴) 형식 가져오기/내보내기', ja: 'DOCXとHWPX（韓国語）形式の入出力', zh: '导入/导出DOCX和HWPX格式' } },
+  ],
+  sheet: [
+    { target: '#sheet-formula-bar', text: { en: 'Enter values or formulas here. Try =SUM(A1:A10), =AVERAGE(), =IF(), and 40+ scientific functions like =SIN(), =LOG(), =CONVERT()', ko: '값이나 수식을 입력하세요. =SUM(A1:A10), =AVERAGE(), =IF() 외 40+ 과학함수(=SIN(), =LOG(), =CONVERT()) 지원', ja: '値や数式を入力。=SUM(A1:A10)、=AVERAGE()、=IF()、40以上の科学関数（=SIN()、=LOG()、=CONVERT()）対応', zh: '输入值或公式。支持=SUM(A1:A10)、=AVERAGE()、=IF()及40+科学函数如=SIN()、=LOG()、=CONVERT()' } },
+    { target: '#sheet-cell-ref', text: { en: 'Current cell reference. Navigate by clicking cells or using arrow keys', ko: '현재 셀 참조. 셀 클릭이나 화살표 키로 이동', ja: '現在のセル参照。クリックや矢印キーで移動', zh: '当前单元格引用。点击或使用箭头键导航' } },
+    { target: '#sheet-bold', text: { en: 'Format cells: bold, alignment, background color', ko: '셀 서식: 굵게, 정렬, 배경색', ja: 'セル書式: 太字・配置・背景色', zh: '单元格格式：粗体、对齐、背景色' } },
+    { target: '#sheet-add-row', text: { en: 'Add or delete rows and columns', ko: '행과 열을 추가하거나 삭제하세요', ja: '行と列の追加・削除', zh: '添加或删除行和列' } },
+    { target: '.sheet-tabs', text: { en: 'Manage multiple sheets — click + to add new sheets', ko: '여러 시트를 관리합니다. +로 새 시트 추가', ja: '複数シート管理 — +で新規シート追加', zh: '管理多个工作表 — 点击+添加新工作表' } },
+  ],
+  slide: [
+    { target: '#slide-add', text: { en: 'Add and delete slides for your presentation', ko: '프레젠테이션 슬라이드를 추가/삭제하세요', ja: 'プレゼンテーションのスライドを追加・削除', zh: '添加和删除演示幻灯片' } },
+    { target: '#slide-layout', text: { en: 'Choose slide layouts: Title, Content, Two Columns, Blank, Image', ko: '슬라이드 레이아웃 선택: 제목, 내용, 2단, 빈 슬라이드, 이미지', ja: 'レイアウト選択: タイトル・コンテンツ・2段・空白・画像', zh: '选择幻灯片布局：标题、内容、双栏、空白、图片' } },
+    { target: '#slide-theme', text: { en: 'Apply themes: Default, Dark, Blue, Green', ko: '테마 적용: 기본, 다크, 블루, 그린', ja: 'テーマ適用: デフォルト・ダーク・ブルー・グリーン', zh: '应用主题：默认、深色、蓝色、绿色' } },
+    { target: '#slide-present', text: { en: 'Start fullscreen presentation mode (F5)', ko: '전체화면 프레젠테이션 시작 (F5)', ja: 'フルスクリーンプレゼンテーション開始（F5）', zh: '开始全屏演示模式（F5）' } },
+    { target: '#slide-notes', text: { en: 'Add speaker notes visible only to you during presentations', ko: '발표 중 본인만 볼 수 있는 발표자 노트를 추가하세요', ja: 'プレゼン中に自分だけ見える発表者ノートを追加', zh: '添加仅您在演示期间可见的演讲者备注' } },
+  ],
+  pdf: [
+    { target: '#pdf-open', text: { en: 'Open any PDF file to view it in the built-in reader', ko: 'PDF 파일을 열어 내장 뷰어로 봅니다', ja: 'PDFファイルを内蔵リーダーで開く', zh: '打开任何PDF文件在内置阅读器中查看' } },
+    { target: '#pdf-zoom-in', text: { en: 'Zoom in/out or fit to width for comfortable reading', ko: '확대/축소 또는 너비맞춤으로 편하게 읽으세요', ja: 'ズームイン/アウト・幅合わせで快適に読む', zh: '放大/缩小或适合宽度以便舒适阅读' } },
+    { target: '#pdf-convert-md', text: { en: 'Convert your Markdown or Document to PDF instantly', ko: '마크다운이나 문서를 즉시 PDF로 변환합니다', ja: 'MarkdownやDocumentをPDFに即変換', zh: '将您的Markdown或文档立即转换为PDF' } },
+  ],
+  markdown: [
+    { target: '#editor-container', text: { en: 'Write Markdown on the left — it renders in real-time on the right. Supports KaTeX math, Mermaid diagrams, code highlighting', ko: '왼쪽에 마크다운을 작성하면 오른쪽에 실시간 렌더링됩니다. KaTeX 수식, Mermaid 다이어그램, 코드 하이라이팅 지원', ja: '左にMarkdownを書くと右にリアルタイムレンダリング。KaTeX数式・Mermaid図・コードハイライト対応', zh: '在左侧编写Markdown — 右侧实时渲染。支持KaTeX数学、Mermaid图表、代码高亮' } },
+  ],
+  ai: [
+    { target: '.ai-full-setup-btn', text: { en: 'First time? Click here to install Ollama (free AI engine) and download models. Takes about 5 minutes.', ko: '처음이세요? 여기를 클릭해서 Ollama(무료 AI 엔진)를 설치하고 모델을 다운로드하세요. 약 5분 소요.', ja: '初めてですか？ここをクリックしてOllama（無料AIエンジン）をインストールしてモデルをダウンロード。約5分です。', zh: '第一次？点击这里安装Ollama（免费AI引擎）并下载模型。大约5分钟。' } },
+    { target: '.ai-full-chat', text: { en: 'Chat with AI here. Use context buttons (+ Document, + Sheet, + PDF) to attach your content for analysis.', ko: '여기서 AI와 대화하세요. 컨텍스트 버튼(+ Document, + Sheet, + PDF)으로 분석할 내용을 첨부할 수 있습니다.', ja: 'ここでAIとチャット。コンテキストボタン（+Document、+Sheet、+PDF）で分析する内容を添付。', zh: '在这里与AI聊天。使用上下文按钮（+Document、+Sheet、+PDF）附加您的内容进行分析。' } },
+  ],
+};
+
+function showTabFeatureTour(tabName) {
+  const tourKey = TAB_TOUR_PREFIX + tabName;
+  if (localStorage.getItem(tourKey)) return;
+  if (!TAB_TOURS[tabName]) return;
+
+  // Wait for tab content to render
+  setTimeout(() => {
+    const steps = TAB_TOURS[tabName];
+    const lang = getLang();
+
+    // Remove any existing tour tooltip
+    document.querySelector('.tour-tooltip')?.remove();
+    document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+
+    const dontShowLabel = { en: "Got it", ko: '확인', ja: '了解', zh: '知道了', es: 'Entendido', fr: 'Compris' };
+    const nextLabel = { en: 'Next', ko: '다음', ja: '次へ', zh: '下一步', es: 'Siguiente', fr: 'Suivant' };
+    const doneLabel = { en: 'Done', ko: '완료', ja: '完了', zh: '完成', es: 'Listo', fr: 'Terminé' };
+    const getText = (obj) => obj[lang] || obj.en;
+
+    function showStep(index) {
+      document.querySelector('.tour-tooltip')?.remove();
+      document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+
+      if (index >= steps.length) {
+        localStorage.setItem(tourKey, '1');
+        return;
+      }
+
+      const step = steps[index];
+      const target = document.querySelector(step.target);
+      if (!target) { showStep(index + 1); return; }
+
+      target.classList.add('tour-highlight');
+      const rect = target.getBoundingClientRect();
+
+      const isLast = index >= steps.length - 1;
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tour-tooltip';
+      tooltip.innerHTML = `
+        <div class="tour-tooltip-text">${getText(step.text)}</div>
+        <div class="tour-tooltip-actions">
+          <span class="tour-tooltip-progress">${tabName.toUpperCase()} ${index + 1}/${steps.length}</span>
+          <button class="tour-tooltip-dismiss">${getText(dontShowLabel)}</button>
+          <button class="tour-tooltip-next">${isLast ? getText(doneLabel) : getText(nextLabel)}</button>
+        </div>
+      `;
+
+      // Position below target
+      tooltip.style.top = (rect.bottom + 10) + 'px';
+      tooltip.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 340)) + 'px';
+
+      tooltip.querySelector('.tour-tooltip-next').addEventListener('click', () => showStep(index + 1));
+      tooltip.querySelector('.tour-tooltip-dismiss').addEventListener('click', () => {
+        document.querySelector('.tour-tooltip')?.remove();
+        document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+        localStorage.setItem(tourKey, '1');
+      });
+
+      document.body.appendChild(tooltip);
+    }
+
+    showStep(0);
+  }, 500);
 }
 
 /**
