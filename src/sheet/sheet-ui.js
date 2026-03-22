@@ -1,4 +1,4 @@
-// MarkLink SL — Sheet UI (grid rendering + interaction)
+// OfficeLink SL — Sheet UI (grid rendering + interaction)
 
 import {
   createSheetData, getCell, setCell, setCellFormat,

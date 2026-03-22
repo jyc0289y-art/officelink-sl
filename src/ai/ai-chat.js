@@ -1,4 +1,4 @@
-// MarkLink SL — AI Chat Panel (Local LLM powered office assistant)
+// OfficeLink SL — AI Chat Panel (Local LLM powered office assistant)
 // Architecture adapted from T1.15wc security consultation agent
 
 import {
@@ -8,7 +8,9 @@ import {
 import { t } from '../ui/i18n.js';
 
 let panelEl, chatListEl, chatInputEl, modelSelectEl, statusDotEl;
+let fullChatAreaEl, fullStatusDotEl, fullStatusTextEl, fullModelSelectEl;
 let isOpen = false;
+let isFullscreenMode = false; // true when AI tab is active
 let history = [];
 let selectedModel = '';
 let ollamaReady = false;
@@ -23,7 +25,7 @@ export function setContextProviders(providers) {
 
 // ─── System prompt for office assistant ─────────────────
 function getSystemPrompt() {
-  return `You are MarkLink AI, a helpful office assistant built into MarkLink SL — a free web office suite.
+  return `You are OfficeLink AI, a helpful office assistant built into OfficeLink SL — a free web office suite.
 You help users with:
 - Writing, editing, and formatting documents
 - Creating spreadsheet formulas and data analysis
@@ -95,6 +97,25 @@ export function initAiChat() {
   // Restore saved model
   selectedModel = localStorage.getItem('marklink-ai-model') || '';
 
+  // Full-screen AI tab elements
+  fullChatAreaEl = document.getElementById('ai-full-chat-area');
+  fullStatusDotEl = document.getElementById('ai-full-status-dot');
+  fullStatusTextEl = document.getElementById('ai-full-status-text');
+  fullModelSelectEl = document.getElementById('ai-full-model-select');
+
+  // Full-screen buttons
+  document.getElementById('ai-full-setup-btn')?.addEventListener('click', showSetupModal);
+  document.getElementById('ai-full-sessions-btn')?.addEventListener('click', showSessionsModal);
+
+  // Sync full-screen model select
+  if (fullModelSelectEl) {
+    fullModelSelectEl.addEventListener('change', () => {
+      selectedModel = fullModelSelectEl.value;
+      localStorage.setItem('marklink-ai-model', selectedModel);
+      if (modelSelectEl) modelSelectEl.value = selectedModel;
+    });
+  }
+
   // Check Ollama status & restore session
   checkStatus().then(() => restoreLastSession());
 }
@@ -114,6 +135,13 @@ function updateStatusUI(running) {
   if (statusDotEl) {
     statusDotEl.className = `ai-status-dot ${running ? 'online' : 'offline'}`;
     statusDotEl.title = running ? 'Ollama is running' : 'Ollama is not running — click AI Setup';
+  }
+  // Sync full-screen status
+  if (fullStatusDotEl) {
+    fullStatusDotEl.className = `ai-status-dot ${running ? 'online' : 'offline'}`;
+  }
+  if (fullStatusTextEl) {
+    fullStatusTextEl.textContent = running ? 'Ollama is running' : 'Ollama is not running';
   }
 }
 
@@ -140,6 +168,12 @@ function populateModelSelect(models) {
   } else if (models.length > 0) {
     selectedModel = models[0].name;
     modelSelectEl.value = selectedModel;
+  }
+
+  // Sync full-screen model select
+  if (fullModelSelectEl) {
+    fullModelSelectEl.innerHTML = modelSelectEl.innerHTML;
+    fullModelSelectEl.value = modelSelectEl.value;
   }
 }
 
@@ -464,7 +498,7 @@ async function showSetupModal() {
             <table class="ai-compare-table">
               <tr>
                 <th style="text-align:left"></th>
-                <th>MarkLink AI<br><span style="font-size:10px;color:#4caf50">내 PC</span></th>
+                <th>OfficeLink AI<br><span style="font-size:10px;color:#4caf50">내 PC</span></th>
                 <th>ChatGPT / Claude<br><span style="font-size:10px">클라우드</span></th>
               </tr>
               <tr><td>월 비용</td><td class="win" style="text-align:center">무료</td><td style="text-align:center">$20~25/월</td></tr>
@@ -861,5 +895,78 @@ function restoreLastSession() {
   }
 }
 
+// ─── Fullscreen AI Tab Mode ─────────────────────────────
+
+/**
+ * Enter fullscreen mode — move chat elements into the AI tab view
+ */
+function enterAiFullscreen() {
+  if (isFullscreenMode) return;
+  isFullscreenMode = true;
+
+  // Close sidebar panel if open
+  if (isOpen) {
+    isOpen = false;
+    panelEl?.classList.remove('open');
+  }
+
+  if (!fullChatAreaEl || !panelEl) return;
+
+  // Clone chat content into fullscreen area
+  // Move the actual panel elements for state preservation
+  const chatContent = panelEl.querySelector('.ai-chat-list');
+  const inputArea = panelEl.querySelector('.ai-input-area');
+  const bottomActions = panelEl.querySelector('.ai-bottom-actions');
+
+  if (chatContent && inputArea) {
+    fullChatAreaEl.innerHTML = '';
+    // Create fullscreen chat wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ai-full-chat-wrapper';
+    wrapper.id = 'ai-full-wrapper';
+
+    // Move elements
+    wrapper.appendChild(chatContent);
+    wrapper.appendChild(inputArea);
+    if (bottomActions) wrapper.appendChild(bottomActions);
+    fullChatAreaEl.appendChild(wrapper);
+  }
+
+  // Refresh status
+  if (!ollamaReady) checkStatus();
+}
+
+/**
+ * Exit fullscreen mode — move chat elements back to sidebar panel
+ */
+function exitAiFullscreen() {
+  if (!isFullscreenMode) return;
+  isFullscreenMode = false;
+
+  if (!fullChatAreaEl || !panelEl) return;
+
+  // Move elements back to sidebar panel
+  const chatContent = fullChatAreaEl.querySelector('.ai-chat-list');
+  const inputArea = fullChatAreaEl.querySelector('.ai-input-area');
+  const bottomActions = fullChatAreaEl.querySelector('.ai-bottom-actions');
+  const header = panelEl.querySelector('.ai-panel-header');
+
+  if (chatContent && inputArea) {
+    // Insert after header
+    if (header) {
+      header.after(chatContent);
+      chatContent.after(inputArea);
+      if (bottomActions) inputArea.after(bottomActions);
+    } else {
+      panelEl.appendChild(chatContent);
+      panelEl.appendChild(inputArea);
+      if (bottomActions) panelEl.appendChild(bottomActions);
+    }
+  }
+
+  // Clear fullscreen area
+  fullChatAreaEl.innerHTML = '';
+}
+
 // Export for external use
-export { togglePanel as toggleAiPanel, showSessionsModal };
+export { togglePanel as toggleAiPanel, showSessionsModal, enterAiFullscreen, exitAiFullscreen };

@@ -1,4 +1,4 @@
-// MarkLink SL — CodeMirror 6 Themes
+// OfficeLink SL — CodeMirror 6 Themes
 import { EditorView } from 'codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 

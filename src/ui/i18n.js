@@ -1,4 +1,4 @@
-// MarkLink SL — Internationalization (i18n)
+// OfficeLink SL — Internationalization (i18n)
 // 30+ languages sorted by internet user count
 // Searchable overlay modal + IP-based language recommendation
 
@@ -161,6 +161,14 @@ const T = {
     hi: 'निर्यात', id: 'Ekspor', tr: 'Dışa aktar', vi: 'Xuất', th: 'ส่งออก',
     it: 'Esporta', pl: 'Eksportuj', uk: 'Експорт',
   },
+  'tip.fullscreen': {
+    en: 'Fullscreen', ko: '전체 화면', ja: '全画面', zh: '全屏',
+    es: 'Pantalla completa', fr: 'Plein écran', pt: 'Tela cheia',
+    de: 'Vollbild', ru: 'Полный экран', ar: 'ملء الشاشة',
+    hi: 'पूर्ण स्क्रीन', id: 'Layar penuh', tr: 'Tam ekran', vi: 'Toàn màn hình',
+    th: 'เต็มจอ', it: 'Schermo intero', pl: 'Pełny ekran', uk: 'Повний екран',
+    sw: 'Skrini kamili',
+  },
   'tip.theme': {
     en: 'Toggle Theme', ko: '테마 전환', ja: 'テーマ切替', zh: '切换主题',
     es: 'Cambiar tema', fr: 'Changer le thème', pt: 'Alternar tema',
@@ -317,6 +325,81 @@ const T = {
     fr: 'Supprimer cette conversation.\nCette action est irréversible.',
   },
 
+  // AI Tab features
+  'ai.features.title': {
+    en: 'What can AI do?', ko: 'AI로 무엇을 할 수 있나요?', ja: 'AIでできること',
+    zh: 'AI能做什么？', es: '¿Qué puede hacer la IA?', fr: 'Que peut faire l\'IA ?',
+    pt: 'O que a IA pode fazer?', hi: 'AI क्या कर सकता है?', ar: 'ماذا يمكن للذكاء الاصطناعي أن يفعل؟',
+    de: 'Was kann KI?', ru: 'Что может ИИ?', id: 'Apa yang bisa dilakukan AI?',
+    tr: 'AI ne yapabilir?', vi: 'AI có thể làm gì?', th: 'AI ทำอะไรได้บ้าง?', sw: 'AI inaweza kufanya nini?',
+  },
+  'ai.feat.write': {
+    en: 'Write & Edit', ko: '작성 & 편집', ja: '作成・編集', zh: '写作和编辑',
+    es: 'Escribir y editar', fr: 'Écrire et éditer', de: 'Schreiben & Bearbeiten',
+    ru: 'Написание и редактирование', id: 'Menulis & Mengedit', tr: 'Yaz & Düzenle',
+    vi: 'Viết & Chỉnh sửa', th: 'เขียนและแก้ไข', ar: 'كتابة وتحرير', hi: 'लिखें और संपादित करें',
+  },
+  'ai.feat.write.desc': {
+    en: 'Draft, proofread, and improve documents', ko: '문서 작성, 교정, 개선',
+    ja: '文書の作成・校正・改善', zh: '起草、校对和改进文档',
+    es: 'Redactar, corregir y mejorar documentos', fr: 'Rédiger, relire et améliorer des documents',
+  },
+  'ai.feat.translate': {
+    en: 'Translate', ko: '번역', ja: '翻訳', zh: '翻译',
+    es: 'Traducir', fr: 'Traduire', de: 'Übersetzen', ru: 'Перевод',
+    id: 'Terjemah', tr: 'Çevir', vi: 'Dịch', th: 'แปล', ar: 'ترجمة', hi: 'अनुवाद',
+  },
+  'ai.feat.translate.desc': {
+    en: 'Translate text between 30+ languages', ko: '30개 이상 언어 간 번역',
+    ja: '30以上の言語間で翻訳', zh: '在30多种语言之间翻译',
+    es: 'Traducir texto entre más de 30 idiomas', fr: 'Traduire du texte entre plus de 30 langues',
+  },
+  'ai.feat.analyze': {
+    en: 'Analyze', ko: '분석', ja: '分析', zh: '分析',
+    es: 'Analizar', fr: 'Analyser', de: 'Analysieren', ru: 'Анализ',
+    id: 'Analisis', tr: 'Analiz', vi: 'Phân tích', th: 'วิเคราะห์', ar: 'تحليل', hi: 'विश्लेषण',
+  },
+  'ai.feat.analyze.desc': {
+    en: 'Summarize, extract data, suggest formulas', ko: '요약, 데이터 추출, 수식 추천',
+    ja: '要約・データ抽出・数式提案', zh: '总结、提取数据、建议公式',
+    es: 'Resumir, extraer datos, sugerir fórmulas', fr: 'Résumer, extraire des données, suggérer des formules',
+  },
+  'ai.feat.vision': {
+    en: 'Vision (PDF)', ko: '비전 (PDF)', ja: 'ビジョン（PDF）', zh: '视觉（PDF）',
+    es: 'Visión (PDF)', fr: 'Vision (PDF)',
+  },
+  'ai.feat.vision.desc': {
+    en: 'Analyze formulas, tables, and images in PDFs', ko: 'PDF 내 수식, 표, 이미지 분석',
+    ja: 'PDFの数式・表・画像を分析', zh: '分析PDF中的公式、表格和图像',
+    es: 'Analizar fórmulas, tablas e imágenes en PDFs', fr: 'Analyser les formules, tableaux et images des PDF',
+  },
+  'ai.feat.privacy': {
+    en: '100% Private', ko: '100% 프라이버시', ja: '100%プライベート', zh: '100%隐私',
+    es: '100% Privado', fr: '100% Privé', de: '100% Privat', ru: '100% Приватность',
+    ar: 'خصوصية 100%', hi: '100% निजी',
+  },
+  'ai.feat.privacy.desc': {
+    en: 'Everything runs locally — your data never leaves your PC',
+    ko: '모든 처리가 내 PC에서 — 데이터가 외부로 전송되지 않습니다',
+    ja: 'すべてローカルで動作 — データがPCから外に出ません',
+    zh: '一切在本地运行 — 您的数据永远不会离开您的电脑',
+    es: 'Todo funciona localmente — tus datos nunca salen de tu PC',
+    fr: 'Tout fonctionne localement — vos données ne quittent jamais votre PC',
+  },
+  'ai.tab.setup': {
+    en: 'Install & Setup AI', ko: 'AI 설치 및 설정', ja: 'AIのインストールと設定',
+    zh: '安装和设置AI', es: 'Instalar y configurar IA', fr: 'Installer et configurer l\'IA',
+    de: 'KI installieren & einrichten', ru: 'Установка и настройка ИИ',
+    id: 'Instal & Atur AI', tr: 'AI Kur & Ayarla', vi: 'Cài đặt AI', th: 'ติดตั้ง AI',
+    ar: 'تثبيت وإعداد الذكاء الاصطناعي', hi: 'AI इंस्टॉल करें',
+  },
+  'ai.tab.sessions': {
+    en: 'Chat Sessions', ko: '대화 기록', ja: 'チャット履歴', zh: '聊天记录',
+    es: 'Sesiones de chat', fr: 'Sessions de chat', de: 'Chat-Sitzungen',
+    ru: 'Сессии чата', id: 'Sesi Obrolan', tr: 'Sohbet Oturumları',
+    vi: 'Phiên trò chuyện', th: 'เซสชันแชท', ar: 'جلسات المحادثة', hi: 'चैट सत्र',
+  },
+
   // Language picker overlay
   'lang.title': {
     en: 'Choose Your Language', ko: '언어 선택', ja: '言語を選択', zh: '选择语言',
@@ -374,10 +457,12 @@ export function initI18n() {
   if (saved && LANGUAGES[saved]) {
     currentLang = saved;
     applyTranslations();
+    applyDirection(saved);
   } else {
     // Default to English
     currentLang = 'en';
     applyTranslations();
+    applyDirection('en');
     // Try IP-based detection for recommendation
     detectLanguageByIP();
   }
@@ -498,7 +583,18 @@ export function setLang(lang) {
   currentLang = lang;
   localStorage.setItem(LANG_KEY, lang);
   applyTranslations();
+  applyDirection(lang);
   changeListeners.forEach(fn => fn(lang));
+}
+
+/**
+ * Apply RTL/LTR direction based on language
+ */
+function applyDirection(lang) {
+  const info = LANGUAGES[lang];
+  const isRtl = info?.rtl === true;
+  document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  document.documentElement.classList.toggle('rtl', isRtl);
 }
 
 /**

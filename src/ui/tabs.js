@@ -1,4 +1,4 @@
-// MarkLink SL — Tab Navigation
+// OfficeLink SL — Tab Navigation
 
 let currentTab = 'document';
 const listeners = [];

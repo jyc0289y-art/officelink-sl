@@ -1,4 +1,4 @@
-// MarkLink SL — CodeMirror 6 Editor Setup
+// OfficeLink SL — CodeMirror 6 Editor Setup
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState, Compartment } from '@codemirror/state';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';

@@ -1,4 +1,4 @@
-// MarkLink SL — Document Editor (WYSIWYG)
+// OfficeLink SL — Document Editor (WYSIWYG)
 
 let editorEl = null;
 let dirty = false;
@@ -109,6 +109,22 @@ export function initDocEditor() {
   document.getElementById('doc-insert-hr')?.addEventListener('click', () => {
     document.execCommand('insertHorizontalRule', false, null);
     editorEl.focus();
+  });
+
+  // Table of Contents
+  document.getElementById('doc-insert-toc')?.addEventListener('click', () => {
+    insertTableOfContents();
+    editorEl.focus();
+  });
+
+  // Page numbers toggle
+  document.getElementById('doc-page-numbers')?.addEventListener('click', () => {
+    togglePageNumbers();
+  });
+
+  // Header & Footer
+  document.getElementById('doc-header-footer')?.addEventListener('click', () => {
+    showHeaderFooterDialog();
   });
 
   // HWPX import
@@ -388,4 +404,130 @@ export function isDocDirty() {
 /** Mark document as saved */
 export function markDocClean() {
   dirty = false;
+}
+
+// ─── Table of Contents ──────────────────────────────────────
+function insertTableOfContents() {
+  if (!editorEl) return;
+
+  // Remove existing TOC
+  editorEl.querySelector('.doc-toc')?.remove();
+
+  // Find all headings in the document
+  const headings = editorEl.querySelectorAll('h1, h2, h3, h4');
+  if (headings.length === 0) {
+    alert('No headings found. Add headings (H1-H4) first.');
+    return;
+  }
+
+  // Build TOC
+  const toc = document.createElement('div');
+  toc.className = 'doc-toc';
+  toc.contentEditable = 'false';
+
+  let tocHtml = '<div class="doc-toc-title">Table of Contents</div><nav class="doc-toc-list">';
+  headings.forEach((h, i) => {
+    const level = parseInt(h.tagName[1]);
+    const id = `toc-heading-${i}`;
+    h.id = id;
+    const indent = (level - 1) * 20;
+    tocHtml += `<a href="#${id}" class="doc-toc-item" style="padding-left:${indent}px" onclick="event.preventDefault();document.getElementById('${id}').scrollIntoView({behavior:'smooth'})">${h.textContent}</a>`;
+  });
+  tocHtml += '</nav>';
+  toc.innerHTML = tocHtml;
+
+  // Insert at the beginning of the document
+  editorEl.insertBefore(toc, editorEl.firstChild);
+  dirty = true;
+}
+
+// ─── Page Numbers ───────────────────────────────────────────
+let pageNumbersEnabled = false;
+
+function togglePageNumbers() {
+  pageNumbersEnabled = !pageNumbersEnabled;
+  const wrapper = editorEl?.closest('.doc-page-wrapper');
+  if (wrapper) {
+    wrapper.classList.toggle('show-page-numbers', pageNumbersEnabled);
+  }
+  document.getElementById('doc-page-numbers')?.classList.toggle('active', pageNumbersEnabled);
+}
+
+// ─── Header & Footer ────────────────────────────────────────
+function showHeaderFooterDialog() {
+  // Remove existing dialog
+  document.querySelector('.doc-hf-dialog')?.remove();
+
+  const wrapper = editorEl?.closest('.doc-page-wrapper');
+  const existingHeader = wrapper?.querySelector('.doc-page-header');
+  const existingFooter = wrapper?.querySelector('.doc-page-footer');
+
+  const dialog = document.createElement('div');
+  dialog.className = 'ai-setup-modal doc-hf-dialog';
+  dialog.innerHTML = `
+    <div class="ai-setup-content" style="width:400px">
+      <div class="ai-setup-header">
+        <h3>Header & Footer</h3>
+        <button class="ai-setup-close">&times;</button>
+      </div>
+      <div class="ai-setup-body">
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Header text</label>
+          <input type="text" id="hf-header" class="doc-find-input" style="width:100%" placeholder="e.g. Company Name" value="${existingHeader?.textContent || ''}">
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Footer text</label>
+          <input type="text" id="hf-footer" class="doc-find-input" style="width:100%" placeholder="e.g. Confidential" value="${existingFooter?.textContent || ''}">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="ai-pull-btn" id="hf-remove">Remove</button>
+          <button class="ai-pull-btn" id="hf-apply" style="background:var(--brand-color);color:#fff">Apply</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(dialog);
+
+  dialog.querySelector('.ai-setup-close')?.addEventListener('click', () => dialog.remove());
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.remove(); });
+
+  dialog.querySelector('#hf-apply')?.addEventListener('click', () => {
+    const headerText = dialog.querySelector('#hf-header').value;
+    const footerText = dialog.querySelector('#hf-footer').value;
+    applyHeaderFooter(headerText, footerText);
+    dialog.remove();
+  });
+
+  dialog.querySelector('#hf-remove')?.addEventListener('click', () => {
+    const wrapper = editorEl?.closest('.doc-page-wrapper');
+    wrapper?.querySelector('.doc-page-header')?.remove();
+    wrapper?.querySelector('.doc-page-footer')?.remove();
+    dialog.remove();
+  });
+}
+
+function applyHeaderFooter(headerText, footerText) {
+  const wrapper = editorEl?.closest('.doc-page-wrapper');
+  if (!wrapper) return;
+
+  // Remove existing
+  wrapper.querySelector('.doc-page-header')?.remove();
+  wrapper.querySelector('.doc-page-footer')?.remove();
+
+  if (headerText) {
+    const header = document.createElement('div');
+    header.className = 'doc-page-header';
+    header.contentEditable = 'true';
+    header.textContent = headerText;
+    wrapper.insertBefore(header, wrapper.firstChild);
+  }
+
+  if (footerText) {
+    const footer = document.createElement('div');
+    footer.className = 'doc-page-footer';
+    footer.contentEditable = 'true';
+    footer.textContent = footerText;
+    wrapper.appendChild(footer);
+  }
 }

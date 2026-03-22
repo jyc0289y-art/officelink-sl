@@ -1,4 +1,4 @@
-// MarkLink SL — PDF Export (direct download via html2pdf.js)
+// OfficeLink SL — PDF Export (direct download via html2pdf.js)
 import { render } from '../preview/renderer.js';
 import { generateTimestampFilename } from './filename-utils.js';
 

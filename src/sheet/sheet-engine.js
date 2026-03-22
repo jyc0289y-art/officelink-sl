@@ -1,4 +1,4 @@
-// MarkLink SL — Sheet Engine (data model + formula evaluation)
+// OfficeLink SL — Sheet Engine (data model + formula evaluation)
 
 const DEFAULT_ROWS = 50;
 const DEFAULT_COLS = 26;
@@ -329,6 +329,131 @@ function evalFormula(sheet, expr) {
       case 'NOW': {
         return new Date().toLocaleString();
       }
+
+      // ─── Scientific / Engineering Functions ───
+      case 'SIN': return Math.sin(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'COS': return Math.cos(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'TAN': return Math.tan(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'ASIN': return Math.asin(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'ACOS': return Math.acos(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'ATAN': return Math.atan(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'ATAN2': {
+        const args = splitArgs(argsStr);
+        return Math.atan2(Number(evalSimpleExpr(sheet, args[0])), Number(evalSimpleExpr(sheet, args[1])));
+      }
+      case 'SINH': return Math.sinh(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'COSH': return Math.cosh(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'TANH': return Math.tanh(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'SQRT': return Math.sqrt(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'CBRT': return Math.cbrt(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'POWER':
+      case 'POW': {
+        const args = splitArgs(argsStr);
+        return Math.pow(Number(evalSimpleExpr(sheet, args[0])), Number(evalSimpleExpr(sheet, args[1])));
+      }
+      case 'EXP': return Math.exp(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'LN': return Math.log(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'LOG': {
+        const args = splitArgs(argsStr);
+        const num = Number(evalSimpleExpr(sheet, args[0]));
+        const base = args[1] ? Number(evalSimpleExpr(sheet, args[1])) : 10;
+        return Math.log(num) / Math.log(base);
+      }
+      case 'LOG10': return Math.log10(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'LOG2': return Math.log2(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'CEILING':
+      case 'CEIL': return Math.ceil(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'FLOOR': return Math.floor(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'MOD': {
+        const args = splitArgs(argsStr);
+        return Number(evalSimpleExpr(sheet, args[0])) % Number(evalSimpleExpr(sheet, args[1]));
+      }
+      case 'PI': return Math.PI;
+      case 'E': return Math.E;
+      case 'DEGREES': return Number(evalSimpleExpr(sheet, argsStr)) * (180 / Math.PI);
+      case 'RADIANS': return Number(evalSimpleExpr(sheet, argsStr)) * (Math.PI / 180);
+      case 'SIGN': return Math.sign(Number(evalSimpleExpr(sheet, argsStr)));
+      case 'FACT': {
+        let n = Math.floor(Number(evalSimpleExpr(sheet, argsStr)));
+        if (n < 0) return '#ERROR';
+        if (n > 170) return Infinity;
+        let result = 1;
+        for (let i = 2; i <= n; i++) result *= i;
+        return result;
+      }
+      case 'COMBIN': {
+        const args = splitArgs(argsStr);
+        const n = Math.floor(Number(evalSimpleExpr(sheet, args[0])));
+        const k = Math.floor(Number(evalSimpleExpr(sheet, args[1])));
+        if (k < 0 || k > n) return 0;
+        let result = 1;
+        for (let i = 0; i < k; i++) result = result * (n - i) / (i + 1);
+        return Math.round(result);
+      }
+      case 'PERMUT': {
+        const args = splitArgs(argsStr);
+        const n = Math.floor(Number(evalSimpleExpr(sheet, args[0])));
+        const k = Math.floor(Number(evalSimpleExpr(sheet, args[1])));
+        let result = 1;
+        for (let i = 0; i < k; i++) result *= (n - i);
+        return result;
+      }
+      case 'GCD': {
+        const args = splitArgs(argsStr);
+        let a = Math.abs(Math.floor(Number(evalSimpleExpr(sheet, args[0]))));
+        let b = Math.abs(Math.floor(Number(evalSimpleExpr(sheet, args[1]))));
+        while (b) { [a, b] = [b, a % b]; }
+        return a;
+      }
+      case 'LCM': {
+        const args = splitArgs(argsStr);
+        const a = Math.abs(Math.floor(Number(evalSimpleExpr(sheet, args[0]))));
+        const b = Math.abs(Math.floor(Number(evalSimpleExpr(sheet, args[1]))));
+        let gcd = a, t = b;
+        while (t) { [gcd, t] = [t, gcd % t]; }
+        return (a * b) / gcd;
+      }
+      case 'RAND': return Math.random();
+      case 'RANDBETWEEN': {
+        const args = splitArgs(argsStr);
+        const low = Number(evalSimpleExpr(sheet, args[0]));
+        const high = Number(evalSimpleExpr(sheet, args[1]));
+        return Math.floor(Math.random() * (high - low + 1)) + low;
+      }
+
+      // ─── Unit Conversion ───
+      case 'CONVERT': {
+        const args = splitArgs(argsStr);
+        const val = Number(evalSimpleExpr(sheet, args[0]));
+        const from = String(evalSimpleExpr(sheet, args[1])).replace(/"/g, '').toLowerCase();
+        const to = String(evalSimpleExpr(sheet, args[2])).replace(/"/g, '').toLowerCase();
+        return unitConvert(val, from, to);
+      }
+
+      // ─── Statistical ───
+      case 'MEDIAN': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number').sort((a, b) => a - b);
+        if (!vals.length) return 0;
+        const mid = Math.floor(vals.length / 2);
+        return vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2;
+      }
+      case 'STDEV': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        if (vals.length < 2) return 0;
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (vals.length - 1);
+        return Math.sqrt(variance);
+      }
+      case 'VAR': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        if (vals.length < 2) return 0;
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        return vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (vals.length - 1);
+      }
+      case 'PRODUCT': {
+        const vals = resolveRange(sheet, argsStr).filter(v => typeof v === 'number');
+        return vals.length ? vals.reduce((a, b) => a * b, 1) : 0;
+      }
     }
   }
 
@@ -421,6 +546,37 @@ function evalSimpleExpr(sheet, expr) {
     }
   }
   return resolved;
+}
+
+/**
+ * Unit conversion — supports common length, weight, temperature, area, volume conversions
+ */
+function unitConvert(val, from, to) {
+  // Length conversions to meters
+  const lengthToM = { m: 1, km: 1000, cm: 0.01, mm: 0.001, mi: 1609.344, yd: 0.9144, ft: 0.3048, in: 0.0254, nm: 1852 };
+  if (lengthToM[from] && lengthToM[to]) return val * lengthToM[from] / lengthToM[to];
+
+  // Weight conversions to kg
+  const weightToKg = { kg: 1, g: 0.001, mg: 0.000001, lb: 0.453592, oz: 0.0283495, ton: 1000 };
+  if (weightToKg[from] && weightToKg[to]) return val * weightToKg[from] / weightToKg[to];
+
+  // Temperature
+  if ((from === 'c' || from === 'celsius') && (to === 'f' || to === 'fahrenheit')) return val * 9/5 + 32;
+  if ((from === 'f' || from === 'fahrenheit') && (to === 'c' || to === 'celsius')) return (val - 32) * 5/9;
+  if ((from === 'c' || from === 'celsius') && (to === 'k' || to === 'kelvin')) return val + 273.15;
+  if ((from === 'k' || from === 'kelvin') && (to === 'c' || to === 'celsius')) return val - 273.15;
+  if ((from === 'f' || from === 'fahrenheit') && (to === 'k' || to === 'kelvin')) return (val - 32) * 5/9 + 273.15;
+  if ((from === 'k' || from === 'kelvin') && (to === 'f' || to === 'fahrenheit')) return (val - 273.15) * 9/5 + 32;
+
+  // Area conversions to m²
+  const areaToM2 = { 'm2': 1, 'km2': 1e6, 'cm2': 1e-4, 'ft2': 0.092903, 'in2': 0.00064516, 'acre': 4046.86, 'ha': 10000 };
+  if (areaToM2[from] && areaToM2[to]) return val * areaToM2[from] / areaToM2[to];
+
+  // Volume conversions to liters
+  const volToL = { l: 1, ml: 0.001, gal: 3.78541, qt: 0.946353, pt: 0.473176, cup: 0.236588, 'fl oz': 0.0295735, 'm3': 1000, 'cm3': 0.001 };
+  if (volToL[from] && volToL[to]) return val * volToL[from] / volToL[to];
+
+  return '#UNIT?';
 }
 
 /**

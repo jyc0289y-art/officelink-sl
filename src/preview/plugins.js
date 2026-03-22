@@ -1,4 +1,4 @@
-// MarkLink SL — markdown-it Plugin Registration
+// OfficeLink SL — markdown-it Plugin Registration
 // Plugins are registered here and applied in renderer.js
 
 /**

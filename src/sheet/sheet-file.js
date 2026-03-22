@@ -1,4 +1,4 @@
-// MarkLink SL — Sheet File I/O (CSV + XLSX)
+// OfficeLink SL — Sheet File I/O (CSV + XLSX)
 
 import * as XLSX from 'xlsx';
 import {

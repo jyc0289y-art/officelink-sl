@@ -1,4 +1,4 @@
-// MarkLink SL — Slide File I/O
+// OfficeLink SL — Slide File I/O
 
 import { getSlidesData, setSlidesData } from './slide-editor.js';
 import { generateTimestampFilename } from '../export/filename-utils.js';
@@ -94,7 +94,7 @@ function buildPresHTML() {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHTML(currentName.replace(/\.html?$/i, ''))}</title>
-<meta name="generator" content="MarkLink SL">
+<meta name="generator" content="OfficeLink SL">
 <!-- MARKLINK_SLIDE_DATA:${btoa(JSON.stringify(slides))} -->
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -137,7 +137,7 @@ function escape(s) {
 }
 
 /**
- * Parse a MarkLink presentation HTML file
+ * Parse a OfficeLink presentation HTML file
  */
 function parsePresentation(html) {
   // Try to find embedded slide data

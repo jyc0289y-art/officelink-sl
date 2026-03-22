@@ -1,4 +1,4 @@
-// MarkLink SL — Entry Point (v2)
+// OfficeLink SL — Entry Point (v2)
 import { initApp } from './app.js';
 
 // Initialize when DOM is ready

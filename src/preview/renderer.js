@@ -1,4 +1,4 @@
-// MarkLink SL — markdown-it Renderer Setup
+// OfficeLink SL — markdown-it Renderer Setup
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 

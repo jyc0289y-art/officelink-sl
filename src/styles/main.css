@@ -1,4 +1,4 @@
-/* MarkLink SL — Main Layout */
+/* OfficeLink SL — Main Layout */
 
 * {
   margin: 0;
@@ -111,6 +111,27 @@ html, body {
 .lang-btn:hover {
   border-color: var(--brand-color);
   color: var(--text-primary);
+}
+
+/* Fullscreen button — eye-catching */
+.toolbar-btn-fullscreen {
+  background: var(--brand-color);
+  color: #fff !important;
+  border-radius: 6px;
+  font-size: 16px;
+  width: auto;
+  padding: 0 10px;
+  transition: all 0.2s;
+}
+.toolbar-btn-fullscreen .icon {
+  font-size: 16px;
+}
+.toolbar-btn-fullscreen:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+.toolbar-btn-fullscreen.active {
+  background: #4caf50;
 }
 
 /* ========== Language Picker Overlay ========== */
@@ -534,6 +555,64 @@ html, body {
 
 .drop-icon {
   font-size: 48px;
+}
+
+/* ========== RTL Layout Support ========== */
+html.rtl {
+  direction: rtl;
+}
+html.rtl .toolbar {
+  direction: rtl;
+}
+html.rtl .toolbar-left,
+html.rtl .toolbar-right {
+  flex-direction: row-reverse;
+}
+html.rtl .toolbar-brand {
+  direction: ltr; /* Keep brand name LTR */
+}
+html.rtl .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+html.rtl .doc-editor {
+  direction: rtl;
+  text-align: right;
+}
+html.rtl .ai-panel {
+  right: auto;
+  left: -380px;
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+  box-shadow: 4px 0 16px rgba(0,0,0,0.1);
+}
+html.rtl .ai-panel.open {
+  left: 0;
+  right: auto;
+}
+html.rtl .ai-msg-user {
+  align-self: flex-start;
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 4px;
+}
+html.rtl .ai-msg-ai {
+  align-self: flex-end;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 4px;
+}
+html.rtl .tab-bar {
+  direction: rtl;
+}
+html.rtl .sheet-formula-bar {
+  direction: rtl;
+  text-align: right;
+}
+html.rtl .ai-full-sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+html.rtl .lang-picker-grid {
+  direction: rtl;
 }
 
 /* Responsive: tab view below 768px */

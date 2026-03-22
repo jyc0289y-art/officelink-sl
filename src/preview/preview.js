@@ -1,4 +1,4 @@
-// MarkLink SL — Preview Pane Controller
+// OfficeLink SL — Preview Pane Controller
 import { render } from './renderer.js';
 
 let previewElement = null;

@@ -1,4 +1,4 @@
-// MarkLink SL — Drag & Drop Handler
+// OfficeLink SL — Drag & Drop Handler
 
 /**
  * Initialize drag and drop for .md files

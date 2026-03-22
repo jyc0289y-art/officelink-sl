@@ -1,4 +1,4 @@
-// MarkLink SL — Dark Mode Toggle
+// OfficeLink SL — Dark Mode Toggle
 import { setTheme as setEditorTheme } from '../editor/editor.js';
 
 const STORAGE_KEY = 'marklink-theme';

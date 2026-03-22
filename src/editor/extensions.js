@@ -1,4 +1,4 @@
-// MarkLink SL — CodeMirror 6 Extensions
+// OfficeLink SL — CodeMirror 6 Extensions
 import { keymap } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
 import { search } from '@codemirror/search';

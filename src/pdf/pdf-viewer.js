@@ -1,4 +1,4 @@
-// MarkLink SL — PDF Viewer (using PDF.js)
+// OfficeLink SL — PDF Viewer (using PDF.js)
 
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -103,7 +103,7 @@ async function openPdf() {
   // Update filename display
   const fileNameEl = document.getElementById('file-name');
   if (fileNameEl) fileNameEl.textContent = currentName;
-  document.title = `${currentName} — MarkLink SL`;
+  document.title = `${currentName} — OfficeLink SL`;
 }
 
 async function loadPdfData(data) {

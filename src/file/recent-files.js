@@ -1,4 +1,4 @@
-// MarkLink SL — Recent Files UI
+// OfficeLink SL — Recent Files UI
 import { getRecentFiles } from './file-manager.js';
 
 /**

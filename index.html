@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MarkLink SL</title>
+  <title>OfficeLink SL</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/src/styles/main.css" />
   <link rel="stylesheet" href="/src/styles/editor.css" />
@@ -30,7 +30,7 @@
   <!-- Toolbar -->
   <header id="toolbar" class="toolbar">
     <div class="toolbar-left">
-      <span class="toolbar-brand">✦ MarkLink SL</span>
+      <span class="toolbar-brand">✦ OfficeLink SL</span>
       <div class="toolbar-divider"></div>
       <button id="btn-open" class="toolbar-btn" data-tip="tip.open" title="Open File (⌘O)">
         <span class="icon">📂</span>
@@ -75,6 +75,9 @@
       <button id="btn-tutorial" class="toolbar-btn" data-tip="tip.tutorial" title="Tutorial">
         <span class="icon">❓</span>
       </button>
+      <button id="btn-fullscreen" class="toolbar-btn toolbar-btn-fullscreen" data-tip="tip.fullscreen" title="Fullscreen">
+        <span class="icon" id="fullscreen-icon">⛶</span>
+      </button>
       <button id="btn-theme" class="toolbar-btn" data-tip="tip.theme" title="Toggle Theme">
         <span class="icon" id="theme-icon">🌙</span>
       </button>
@@ -90,6 +93,7 @@
     <button class="tab-item" data-tab="slide">Slide</button>
     <button class="tab-item" data-tab="pdf">PDF</button>
     <button class="tab-item" data-tab="markdown">Markdown</button>
+    <button class="tab-item" data-tab="ai">✦ AI</button>
   </nav>
 
   <!-- Main Content -->
@@ -178,6 +182,9 @@
         <button class="toolbar-btn" id="doc-insert-image" title="Insert Image">🖼</button>
         <button class="toolbar-btn" id="doc-insert-table" title="Insert Table">▦</button>
         <button class="toolbar-btn" id="doc-insert-hr" title="Horizontal Rule">―</button>
+        <button class="toolbar-btn" id="doc-insert-toc" title="Insert Table of Contents" style="font-size:11px">TOC</button>
+        <button class="toolbar-btn" id="doc-page-numbers" title="Toggle Page Numbers" style="font-size:11px">pg#</button>
+        <button class="toolbar-btn" id="doc-header-footer" title="Header & Footer" style="font-size:11px">H/F</button>
         <div class="toolbar-divider"></div>
         <button class="toolbar-btn" id="doc-undo" title="Undo (⌘Z)">↩</button>
         <button class="toolbar-btn" id="doc-redo" title="Redo (⌘⇧Z)">↪</button>
@@ -304,13 +311,97 @@
         <div class="pdf-pages" id="pdf-pages"></div>
       </div>
     </div>
+
+    <!-- AI View (Full-screen AI tab) -->
+    <div id="view-ai" class="app-view">
+      <div class="ai-fullscreen-layout">
+        <!-- Left: Features & Setup -->
+        <div class="ai-full-sidebar">
+          <div class="ai-full-brand">
+            <span class="ai-full-logo">✦</span>
+            <div>
+              <h2>OfficeLink AI</h2>
+              <p>Free AI on your PC — no cloud, no subscription</p>
+            </div>
+          </div>
+          <div class="ai-full-status-area">
+            <div id="ai-full-status" class="ai-full-status">
+              <span id="ai-full-status-dot" class="ai-status-dot offline"></span>
+              <span id="ai-full-status-text">Checking Ollama...</span>
+            </div>
+            <select id="ai-full-model-select" class="ai-full-model-select" title="AI Model">
+              <option value="">Checking...</option>
+            </select>
+          </div>
+          <div class="ai-full-features">
+            <h4 data-t="ai.features.title">What can AI do?</h4>
+            <div class="ai-feature-item">
+              <span class="ai-feature-icon">📝</span>
+              <div>
+                <strong data-t="ai.feat.write">Write & Edit</strong>
+                <small data-t="ai.feat.write.desc">Draft, proofread, and improve documents</small>
+              </div>
+            </div>
+            <div class="ai-feature-item">
+              <span class="ai-feature-icon">🌐</span>
+              <div>
+                <strong data-t="ai.feat.translate">Translate</strong>
+                <small data-t="ai.feat.translate.desc">Translate text between 30+ languages</small>
+              </div>
+            </div>
+            <div class="ai-feature-item">
+              <span class="ai-feature-icon">📊</span>
+              <div>
+                <strong data-t="ai.feat.analyze">Analyze</strong>
+                <small data-t="ai.feat.analyze.desc">Summarize, extract data, suggest formulas</small>
+              </div>
+            </div>
+            <div class="ai-feature-item">
+              <span class="ai-feature-icon">👁️</span>
+              <div>
+                <strong data-t="ai.feat.vision">Vision (PDF)</strong>
+                <small data-t="ai.feat.vision.desc">Analyze formulas, tables, and images in PDFs</small>
+              </div>
+            </div>
+            <div class="ai-feature-item">
+              <span class="ai-feature-icon">🔒</span>
+              <div>
+                <strong data-t="ai.feat.privacy">100% Private</strong>
+                <small data-t="ai.feat.privacy.desc">Everything runs locally — your data never leaves your PC</small>
+              </div>
+            </div>
+          </div>
+          <div class="ai-full-actions">
+            <button class="ai-full-setup-btn" id="ai-full-setup-btn">
+              <span>⚙️</span> <span data-t="ai.tab.setup">Install & Setup AI</span>
+            </button>
+            <button class="ai-full-sessions-btn" id="ai-full-sessions-btn">
+              <span>💬</span> <span data-t="ai.tab.sessions">Chat Sessions</span>
+            </button>
+          </div>
+          <div class="ai-full-compare">
+            <h4>vs ChatGPT / Claude</h4>
+            <table class="ai-compare-table">
+              <tr><td>Monthly cost</td><td class="win">Free</td><td>$20-25/mo</td></tr>
+              <tr><td>Your data</td><td class="win">Stays on PC</td><td>Sent to servers</td></tr>
+              <tr><td>Offline use</td><td class="win">Yes</td><td>No</td></tr>
+              <tr><td>Setup time</td><td>~5 min install</td><td>Sign up + pay</td></tr>
+            </table>
+          </div>
+        </div>
+        <!-- Right: Full-size Chat -->
+        <div class="ai-full-chat" id="ai-full-chat-area">
+          <!-- Chat content will be moved here when AI tab is active -->
+        </div>
+      </div>
+    </div>
   </main>
 
-  <!-- AI Chat Panel -->
+  <!-- AI Chat Panel (sidebar mode) -->
   <aside id="ai-panel" class="ai-panel">
     <div class="ai-panel-header">
       <span id="ai-status-dot" class="ai-status-dot offline" title="Checking..."></span>
-      <h3>MarkLink AI</h3>
+      <h3>OfficeLink AI</h3>
       <select id="ai-model-select" title="AI Model">
         <option value="">Checking...</option>
       </select>

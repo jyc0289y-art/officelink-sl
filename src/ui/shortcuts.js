@@ -1,4 +1,4 @@
-// MarkLink SL — Keyboard Shortcuts
+// OfficeLink SL — Keyboard Shortcuts
 
 /**
  * Initialize global keyboard shortcuts

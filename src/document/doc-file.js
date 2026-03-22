@@ -1,4 +1,4 @@
-// MarkLink SL — Document File I/O (.html)
+// OfficeLink SL — Document File I/O (.html)
 
 import { getDocContent, setDocContent, markDocClean } from './doc-editor.js';
 import { generateTimestampFilename } from '../export/filename-utils.js';

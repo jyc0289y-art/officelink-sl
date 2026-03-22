@@ -1,4 +1,4 @@
-// MarkLink SL — DOCX Import/Export
+// OfficeLink SL — DOCX Import/Export
 // mammoth.js (MIT) for import, docx (MIT) for export
 
 import mammoth from 'mammoth';

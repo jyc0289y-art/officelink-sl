@@ -1,4 +1,4 @@
-// MarkLink SL — HWPX Import/Export (한컴오피스 OWPML / KS X 6101)
+// OfficeLink SL — HWPX Import/Export (한컴오피스 OWPML / KS X 6101)
 // Custom implementation — MIT-compatible, no AGPL dependencies
 
 import JSZip from 'jszip';

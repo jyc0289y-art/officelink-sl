@@ -1,4 +1,4 @@
-// MarkLink SL — Filename Utilities
+// OfficeLink SL — Filename Utilities
 
 /**
  * Generate timestamp-prefixed filename

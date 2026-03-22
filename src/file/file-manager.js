@@ -1,4 +1,4 @@
-// MarkLink SL — File Manager (File System Access API + fallback)
+// OfficeLink SL — File Manager (File System Access API + fallback)
 import { generateTimestampFilename } from '../export/filename-utils.js';
 
 let currentFileHandle = null;

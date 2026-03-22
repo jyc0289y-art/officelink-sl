@@ -1,4 +1,4 @@
-// MarkLink SL — Toolbar Actions
+// OfficeLink SL — Toolbar Actions
 import { wrapSelection, insertAtCursor } from '../editor/editor.js';
 
 /**

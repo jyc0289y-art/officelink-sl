@@ -1,4 +1,4 @@
-// MarkLink SL — GA4 Event Tracking
+// OfficeLink SL — GA4 Event Tracking
 
 function send(eventName, params = {}) {
   if (typeof gtag === 'function') {

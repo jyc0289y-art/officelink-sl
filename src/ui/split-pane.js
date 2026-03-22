@@ -1,4 +1,4 @@
-// MarkLink SL — Resizable Split Pane
+// OfficeLink SL — Resizable Split Pane
 
 /**
  * Initialize resizable split pane

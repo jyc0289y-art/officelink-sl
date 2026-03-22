@@ -1,4 +1,4 @@
-// MarkLink SL — Print & PDF Export
+// OfficeLink SL — Print & PDF Export
 
 import { render } from '../preview/renderer.js';
 
@@ -7,7 +7,7 @@ import { render } from '../preview/renderer.js';
  * @param {string} markdownText - Current markdown content
  * @param {string} title - Document title
  */
-export function printDocument(markdownText, title = 'MarkLink SL') {
+export function printDocument(markdownText, title = 'OfficeLink SL') {
   const html = render(markdownText);
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;

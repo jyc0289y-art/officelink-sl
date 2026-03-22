@@ -1,4 +1,4 @@
-// MarkLink SL — Ollama Client (Local LLM Integration)
+// OfficeLink SL — Ollama Client (Local LLM Integration)
 // Adapted from T1.15wc security consultation agent architecture
 
 const OLLAMA_BASE = 'http://localhost:11434';

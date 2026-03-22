@@ -1,4 +1,4 @@
-// MarkLink SL — Sidebar Toggle
+// OfficeLink SL — Sidebar Toggle
 
 let sidebarVisible = false;
 

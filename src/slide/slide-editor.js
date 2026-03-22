@@ -1,4 +1,4 @@
-// MarkLink SL — Slide Editor
+// OfficeLink SL — Slide Editor
 
 const LAYOUTS = {
   title: '<h1 class="slide-title">Title</h1><p class="slide-subtitle">Subtitle</p>',

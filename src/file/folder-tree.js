@@ -1,4 +1,4 @@
-// MarkLink SL — Folder Tree (File System Access API - Chromium only)
+// OfficeLink SL — Folder Tree (File System Access API - Chromium only)
 
 /**
  * Open a directory and build tree
