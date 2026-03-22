@@ -615,6 +615,53 @@ html.rtl .lang-picker-grid {
   direction: rtl;
 }
 
+/* ========== Side Banner Ads (PC only) ========== */
+.ad-banner {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  z-index: 100;
+  overflow: hidden;
+}
+.ad-banner-left { left: 8px; }
+.ad-banner-right { right: 8px; }
+.ad-close-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(0,0,0,0.15);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.ad-close-btn:hover {
+  opacity: 1;
+  background: rgba(0,0,0,0.3);
+}
+.ad-content {
+  padding: 4px;
+}
+/* Hide ads on mobile / small screens */
+@media (max-width: 1023px) {
+  .ad-banner { display: none !important; }
+}
+
 /* Responsive: tab view below 768px */
 @media (max-width: 768px) {
   .sidebar {

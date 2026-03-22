@@ -1,0 +1,246 @@
+/* OfficeLink SL — Photo Editor Styles */
+
+/* ===== Layout ===== */
+/* Note: display is controlled by .app-view / .app-view.active in tabs.css */
+#view-photo.active {
+  flex-direction: column;
+  height: 100%;
+}
+
+.photo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--toolbar-bg);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.photo-workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== Empty State ===== */
+.photo-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.photo-empty:hover {
+  background: var(--hover-bg);
+}
+
+.photo-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  margin: 24px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.photo-drop-zone.dragover {
+  border-color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 8%, transparent);
+}
+
+/* ===== Canvas Area ===== */
+.photo-canvas-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg-secondary, #1a1a1a);
+  position: relative;
+}
+
+#photo-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.15s ease;
+}
+
+/* ===== Right Panel ===== */
+.photo-panel {
+  width: 280px;
+  overflow-y: auto;
+  border-left: 1px solid var(--border-color);
+  background: var(--bg-color);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.photo-panel-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.photo-panel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.photo-panel-toggle::after {
+  content: '▸';
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.photo-panel-toggle.active::after {
+  transform: rotate(90deg);
+}
+
+.photo-panel-content {
+  display: none;
+  padding: 8px 12px 12px;
+}
+
+.photo-panel-content.open {
+  display: block;
+}
+
+/* ===== Sliders ===== */
+.photo-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.photo-slider-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.photo-slider-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 2px;
+  outline: none;
+}
+
+.photo-slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand-color, #4a90d9);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.photo-slider-val {
+  font-size: 11px;
+  color: var(--text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ===== Auto-Edit ===== */
+.photo-auto-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px 12px;
+}
+
+.photo-auto-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.photo-auto-btn:hover {
+  background: var(--hover-bg);
+}
+
+.photo-auto-btn .auto-icon {
+  margin-right: 6px;
+}
+
+#photo-auto-status {
+  display: none;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 8px;
+  background: var(--hover-bg);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* ===== Info Bar ===== */
+.photo-info-bar {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  background: var(--toolbar-bg);
+  flex-shrink: 0;
+}
+
+/* ===== Editor area (hidden by default) ===== */
+.photo-editor-area {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .photo-panel {
+    width: 100%;
+    max-height: 40vh;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .photo-workspace {
+    flex-direction: column;
+  }
+
+  .photo-toolbar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+}

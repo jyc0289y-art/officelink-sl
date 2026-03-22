@@ -97,10 +97,10 @@ export function initDocEditor() {
 
   // Insert table
   document.getElementById('doc-insert-table')?.addEventListener('click', () => {
-    const rows = parseInt(prompt('Rows:', '3'), 10) || 3;
-    const cols = parseInt(prompt('Columns:', '3'), 10) || 3;
-    insertHTMLAtCursor(buildTable(rows, cols));
-    editorEl.focus();
+    showTableInsertDialog((rows, cols) => {
+      insertHTMLAtCursor(buildTable(rows, cols));
+      editorEl.focus();
+    });
   });
 
   // Insert horizontal rule
@@ -357,6 +357,50 @@ function updateWordCount() {
 }
 
 // ─── Helpers ────────────────────────────────────────────────
+function showTableInsertDialog(onInsert) {
+  const overlay = document.createElement('div');
+  overlay.className = 'doc-dialog-overlay';
+  overlay.innerHTML = `
+    <div class="doc-dialog">
+      <h3 style="margin:0 0 12px">Insert Table</h3>
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <label style="flex:1">
+          <span style="font-size:12px;color:var(--text-secondary)">Rows</span>
+          <input type="number" id="tbl-rows" value="3" min="1" max="100" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:6px;font-size:14px;background:var(--bg-primary);color:var(--text-primary)">
+        </label>
+        <label style="flex:1">
+          <span style="font-size:12px;color:var(--text-secondary)">Columns</span>
+          <input type="number" id="tbl-cols" value="3" min="1" max="26" style="width:100%;padding:6px 8px;border:1px solid var(--border-color);border-radius:6px;font-size:14px;background:var(--bg-primary);color:var(--text-primary)">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="tbl-cancel" style="padding:6px 16px;border:1px solid var(--border-color);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:13px">Cancel</button>
+        <button id="tbl-ok" style="padding:6px 16px;border:none;border-radius:6px;background:var(--brand-color);color:#fff;cursor:pointer;font-size:13px;font-weight:600">Insert</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const rowsInput = overlay.querySelector('#tbl-rows');
+  const colsInput = overlay.querySelector('#tbl-cols');
+  rowsInput.focus();
+  rowsInput.select();
+
+  const close = () => { overlay.remove(); };
+  overlay.querySelector('#tbl-cancel').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('#tbl-ok').addEventListener('click', () => {
+    const rows = parseInt(rowsInput.value, 10) || 3;
+    const cols = parseInt(colsInput.value, 10) || 3;
+    close();
+    onInsert(rows, cols);
+  });
+  // Enter key to submit
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { overlay.querySelector('#tbl-ok').click(); }
+    if (e.key === 'Escape') { close(); }
+  });
+}
+
 function buildTable(rows, cols) {
   let html = '<table><thead><tr>';
   for (let c = 0; c < cols; c++) html += `<th>Header ${c + 1}</th>`;

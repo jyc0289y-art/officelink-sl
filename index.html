@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/src/styles/slide.css" />
   <link rel="stylesheet" href="/src/styles/pdf.css" />
   <link rel="stylesheet" href="/src/styles/ai-chat.css" />
+  <link rel="stylesheet" href="/src/styles/photo.css" />
 
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -93,6 +94,7 @@
     <button class="tab-item" data-tab="slide">Slide</button>
     <button class="tab-item" data-tab="pdf">PDF</button>
     <button class="tab-item" data-tab="markdown">Markdown</button>
+    <button class="tab-item" data-tab="photo">📷 Photo</button>
     <button class="tab-item" data-tab="ai">✦ AI</button>
   </nav>
 
@@ -178,10 +180,10 @@
         <input type="color" id="doc-color" value="#000000" title="Text Color">
         <input type="color" id="doc-bg-color" value="#ffffff" title="Highlight Color">
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="doc-insert-link" title="Insert Link">🔗</button>
-        <button class="toolbar-btn" id="doc-insert-image" title="Insert Image">🖼</button>
-        <button class="toolbar-btn" id="doc-insert-table" title="Insert Table">▦</button>
-        <button class="toolbar-btn" id="doc-insert-hr" title="Horizontal Rule">―</button>
+        <button class="toolbar-btn doc-insert-btn" id="doc-insert-link" title="Insert Link">🔗 Link</button>
+        <button class="toolbar-btn doc-insert-btn" id="doc-insert-image" title="Insert Image">🖼️ Image</button>
+        <button class="toolbar-btn doc-insert-btn" id="doc-insert-table" title="Insert Table">📊 Table</button>
+        <button class="toolbar-btn doc-insert-btn" id="doc-insert-hr" title="Horizontal Rule">― Line</button>
         <button class="toolbar-btn" id="doc-insert-toc" title="Insert Table of Contents" style="font-size:11px">TOC</button>
         <button class="toolbar-btn" id="doc-page-numbers" title="Toggle Page Numbers" style="font-size:11px">pg#</button>
         <button class="toolbar-btn" id="doc-header-footer" title="Header & Footer" style="font-size:11px">H/F</button>
@@ -310,6 +312,89 @@
         </div>
         <div class="pdf-pages" id="pdf-pages"></div>
       </div>
+    </div>
+
+    <!-- Photo View -->
+    <div id="view-photo" class="app-view">
+      <div class="photo-toolbar">
+        <button class="toolbar-btn" id="photo-open" title="Open Image">📂 Open</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="photo-undo" title="Undo" disabled>↩</button>
+        <button class="toolbar-btn" id="photo-redo" title="Redo" disabled>↪</button>
+        <button class="toolbar-btn" id="photo-reset" title="Reset">⟲ Reset</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="photo-compare" title="Compare (hold)">👁 Compare</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="photo-rotate-cw" title="Rotate 90°">⟳</button>
+        <button class="toolbar-btn" id="photo-flip-h" title="Flip Horizontal">↔</button>
+        <button class="toolbar-btn" id="photo-flip-v" title="Flip Vertical">↕</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" id="photo-export" title="Export" style="background:var(--brand-color);color:#fff;border-radius:6px">⬇ Export</button>
+      </div>
+      <!-- Empty state / Drop zone -->
+      <div class="photo-workspace">
+        <div class="photo-empty" id="photo-empty">
+          <div class="photo-drop-zone" id="photo-drop-zone">
+            <span style="font-size:64px">📷</span>
+            <p style="font-size:16px;margin:8px 0">Drop an image here or click to open</p>
+            <p style="font-size:12px">Supports JPEG, PNG, WebP, HEIC</p>
+          </div>
+        </div>
+        <!-- Editor area (shown after image loads) -->
+        <div class="photo-editor-area" id="photo-editor-area">
+          <div class="photo-canvas-area">
+            <canvas id="photo-canvas"></canvas>
+          </div>
+          <!-- Right adjustment panel -->
+          <div class="photo-panel">
+            <!-- AI Auto-Edit -->
+            <div class="photo-panel-section">
+              <button class="photo-panel-toggle active" data-panel="photo-ai-panel">✦ AI Auto-Edit</button>
+              <div class="photo-panel-content open" id="photo-ai-panel">
+                <div class="photo-auto-section">
+                  <button class="photo-auto-btn" id="photo-auto-local"><span class="auto-icon">⚡</span>Local Auto (instant)</button>
+                  <button class="photo-auto-btn" id="photo-auto-ollama"><span class="auto-icon">🤖</span>Ollama LLM</button>
+                  <button class="photo-auto-btn" id="photo-auto-claude"><span class="auto-icon">✦</span>Claude Vision API</button>
+                  <div id="photo-auto-status"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Basic Adjustments -->
+            <div class="photo-panel-section">
+              <button class="photo-panel-toggle active" data-panel="photo-basic-panel">Basic</button>
+              <div class="photo-panel-content open" id="photo-basic-panel">
+                <div class="photo-slider-row"><span class="photo-slider-label">Exposure</span><input type="range" id="photo-exposure" min="-3" max="3" step="0.1" value="0"><span class="photo-slider-val" id="photo-exposure-val">0.0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Contrast</span><input type="range" id="photo-contrast" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-contrast-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Highlights</span><input type="range" id="photo-highlights" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-highlights-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Shadows</span><input type="range" id="photo-shadows" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-shadows-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Color Temp</span><input type="range" id="photo-colortemp" min="2000" max="10000" step="100" value="5800"><span class="photo-slider-val" id="photo-colortemp-val">5800</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Saturation</span><input type="range" id="photo-saturation" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-saturation-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Vibrance</span><input type="range" id="photo-vibrance" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-vibrance-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Clarity</span><input type="range" id="photo-clarity" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-clarity-val">0</span></div>
+              </div>
+            </div>
+            <!-- Vignette -->
+            <div class="photo-panel-section">
+              <button class="photo-panel-toggle" data-panel="photo-vig-panel">Vignette</button>
+              <div class="photo-panel-content" id="photo-vig-panel">
+                <div class="photo-slider-row"><span class="photo-slider-label">Amount</span><input type="range" id="photo-vig-amount" min="0" max="100" value="0"><span class="photo-slider-val" id="photo-vig-amount-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Midpoint</span><input type="range" id="photo-vig-midpoint" min="0" max="100" value="50"><span class="photo-slider-val" id="photo-vig-midpoint-val">50</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Roundness</span><input type="range" id="photo-vig-roundness" min="-100" max="100" value="0"><span class="photo-slider-val" id="photo-vig-roundness-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Feather</span><input type="range" id="photo-vig-feather" min="0" max="100" value="60"><span class="photo-slider-val" id="photo-vig-feather-val">60</span></div>
+              </div>
+            </div>
+            <!-- Grain -->
+            <div class="photo-panel-section">
+              <button class="photo-panel-toggle" data-panel="photo-grain-panel">Grain</button>
+              <div class="photo-panel-content" id="photo-grain-panel">
+                <div class="photo-slider-row"><span class="photo-slider-label">Amount</span><input type="range" id="photo-grain-amount" min="0" max="100" value="0"><span class="photo-slider-val" id="photo-grain-amount-val">0</span></div>
+                <div class="photo-slider-row"><span class="photo-slider-label">Size</span><input type="range" id="photo-grain-size" min="0" max="100" value="50"><span class="photo-slider-val" id="photo-grain-size-val">50</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="photo-info-bar" id="photo-info-bar">Photo Editor — Open an image to start editing</div>
     </div>
 
     <!-- AI View (Full-screen AI tab) -->

@@ -26,6 +26,8 @@ import { openSlideFile, saveSlideFile, getSlideFileName } from './slide/slide-fi
 import { initPdfViewer, getPdfFileName, getPdfText, getPdfPageImages, openPdf } from './pdf/pdf-viewer.js';
 import { initAiChat, setContextProviders, enterAiFullscreen, exitAiFullscreen } from './ai/ai-chat.js';
 import { initI18n, setLang, getLang, showLanguagePicker, onLangChange } from './ui/i18n.js';
+import { initPhotoEditor, getPhotoFileName, openPhotoFile } from './photo/photo-editor.js';
+import { initAdBanners } from './ui/ad-banner.js';
 
 // Default welcome content
 const WELCOME_MD = `# Welcome to OfficeLink SL ✦
@@ -277,6 +279,7 @@ export async function initApp() {
         else if (tab === 'sheet') result = await openSheetFile();
         else if (tab === 'slide') result = await openSlideFile();
         else if (tab === 'pdf') { await openPdf(); return; }
+        else if (tab === 'photo') { await openPhotoFile(); return; }
         else { result = await openFile(); if (result) loadFile(result); }
         if (result) updateFileName(result.name);
       } catch (e) {
@@ -324,6 +327,7 @@ export async function initApp() {
   initSheetEditor();
   initSlideEditor();
   initPdfViewer();
+  initPhotoEditor();
 
   // Update filename display on tab switch + AI fullscreen mode
   onTabChange((tab, prevTab) => {
@@ -331,6 +335,7 @@ export async function initApp() {
     else if (tab === 'sheet') updateFileName(getSheetFileName());
     else if (tab === 'slide') updateFileName(getSlideFileName());
     else if (tab === 'pdf') updateFileName(getPdfFileName());
+    else if (tab === 'photo') updateFileName(getPhotoFileName());
     else if (tab === 'ai') updateFileName('AI Assistant');
     else updateFileName(getCurrentFileName());
 
@@ -341,6 +346,9 @@ export async function initApp() {
 
   // 18. AI Chat (Local LLM)
   initAiChat();
+
+  // 19. Ad Banners (PC only, non-intrusive)
+  initAdBanners();
   setContextProviders({
     getDocContent: () => getDocContent(),
     getSheetText: () => {
@@ -548,6 +556,10 @@ function startOnboardingTour() {
       target: '[data-tab="markdown"]',
       text: { en: '✍️ Markdown: Split-view editor with live preview. Supports KaTeX math ($E=mc^2$), Mermaid diagrams, syntax highlighting, task lists.', ko: '✍️ Markdown: 분할 뷰 에디터 + 실시간 미리보기. KaTeX 수식, Mermaid 다이어그램, 코드 하이라이팅, 체크리스트 지원.', ja: '✍️ Markdown: 分割ビュー+リアルタイムプレビュー。KaTeX数式・Mermaid図・コードハイライト・タスクリスト。', zh: '✍️ Markdown: 分屏编辑器+实时预览。支持KaTeX数学、Mermaid图表、代码高亮、任务列表。', es: '✍️ Markdown: Editor dividido con vista previa. KaTeX, Mermaid, resaltado de código.', fr: '✍️ Markdown: Éditeur divisé avec aperçu. KaTeX, Mermaid, coloration syntaxique.' },
     },
+    {
+      target: '[data-tab="photo"]',
+      text: { en: '📷 Photo: Professional photo editor with WebGL rendering. AI auto-correction (local/Ollama/Claude), exposure, contrast, color temp, clarity, vignette, grain, tone curves. Lightroom-class editing, free!', ko: '📷 Photo: WebGL 기반 전문 사진 편집기. AI 자동보정(로컬/Ollama/Claude), 노출, 대비, 색온도, 선명도, 비네팅, 그레인, 톤커브. Lightroom급 편집, 무료!', ja: '📷 Photo: WebGLベースのプロ写真エディタ。AI自動補正、露出、コントラスト、色温度、明瞭度、ビネット、グレイン、トーンカーブ。', zh: '📷 Photo: WebGL专业照片编辑器。AI自动校正（本地/Ollama/Claude）、曝光、对比度、色温、清晰度、暗角、颗粒、色调曲线。', es: '📷 Photo: Editor profesional con WebGL. Corrección AI, exposición, contraste, temperatura, claridad, viñeta.', fr: '📷 Photo: Éditeur photo pro WebGL. Correction IA, exposition, contraste, température, clarté, vignette.' },
+    },
     // ── Toolbar right side ──
     {
       target: '#btn-export',
@@ -658,6 +670,11 @@ const TAB_TOURS = {
   ],
   markdown: [
     { target: '#editor-container', text: { en: 'Write Markdown on the left — it renders in real-time on the right. Supports KaTeX math, Mermaid diagrams, code highlighting', ko: '왼쪽에 마크다운을 작성하면 오른쪽에 실시간 렌더링됩니다. KaTeX 수식, Mermaid 다이어그램, 코드 하이라이팅 지원', ja: '左にMarkdownを書くと右にリアルタイムレンダリング。KaTeX数式・Mermaid図・コードハイライト対応', zh: '在左侧编写Markdown — 右侧实时渲染。支持KaTeX数学、Mermaid图表、代码高亮' } },
+  ],
+  photo: [
+    { target: '#photo-open', text: { en: 'Open a photo — supports JPEG, PNG, WebP, HEIC. Or drag & drop directly onto the canvas.', ko: '사진 열기 — JPEG, PNG, WebP, HEIC 지원. 캔버스에 드래그&드롭도 가능.', ja: '写真を開く — JPEG、PNG、WebP、HEIC対応。キャンバスにドラッグ&ドロップも可能。', zh: '打开照片 — 支持JPEG、PNG、WebP、HEIC。也可直接拖放到画布上。' } },
+    { target: '#photo-auto-local', text: { en: '✦ AI auto-correction: Local (instant), Ollama LLM, or Claude Vision API. Detects scene type and optimizes automatically.', ko: '✦ AI 자동보정: 로컬(즉시), Ollama LLM, Claude Vision API. 장면 유형 감지 후 자동 최적화.', ja: '✦ AI自動補正: ローカル（即時）、Ollama LLM、Claude Vision API。シーンタイプを検出して自動最適化。', zh: '✦ AI自动校正：本地（即时）、Ollama LLM或Claude Vision API。检测场景类型并自动优化。' } },
+    { target: '#photo-exposure', text: { en: 'Adjust exposure, contrast, color temperature, saturation, vibrance, clarity — full Lightroom-class controls.', ko: '노출, 대비, 색온도, 채도, 자연채도, 선명도 조절 — Lightroom급 컨트롤.', ja: '露出・コントラスト・色温度・彩度・自然な彩度・明瞭度を調整。Lightroomクラスのコントロール。', zh: '调整曝光、对比度、色温、饱和度、自然饱和度、清晰度 — Lightroom级控制。' } },
   ],
   ai: [
     { target: '.ai-full-setup-btn', text: { en: 'First time? Click here to install Ollama (free AI engine) and download models. Takes about 5 minutes.', ko: '처음이세요? 여기를 클릭해서 Ollama(무료 AI 엔진)를 설치하고 모델을 다운로드하세요. 약 5분 소요.', ja: '初めてですか？ここをクリックしてOllama（無料AIエンジン）をインストールしてモデルをダウンロード。約5分です。', zh: '第一次？点击这里安装Ollama（免费AI引擎）并下载模型。大约5分钟。' } },
