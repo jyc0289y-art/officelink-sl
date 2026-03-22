@@ -15,6 +15,15 @@ import { openFolder } from './file/folder-tree.js';
 import { printDocument } from './export/print.js';
 import { exportHTML } from './export/html.js';
 import { exportPDF } from './export/pdf.js';
+import { trackFileOpen, trackFileSave, trackExport, trackThemeToggle, trackToolbarAction, trackFolderOpen, initSessionTracking } from './analytics.js';
+import { initTabs, onTabChange, getCurrentTab } from './ui/tabs.js';
+import { initDocEditor, getDocContent } from './document/doc-editor.js';
+import { openDocFile, saveDocFile, quickSaveDoc, getDocFileName, setDocFileName } from './document/doc-file.js';
+import { initSheetEditor } from './sheet/sheet-ui.js';
+import { openSheetFile, saveSheetFile, getSheetFileName } from './sheet/sheet-file.js';
+import { initSlideEditor } from './slide/slide-editor.js';
+import { openSlideFile, saveSlideFile, getSlideFileName } from './slide/slide-file.js';
+import { initPdfViewer, getPdfFileName } from './pdf/pdf-viewer.js';
 
 // Default welcome content
 const WELCOME_MD = `# Welcome to MarkLink SL ✦
@@ -141,7 +150,10 @@ export async function initApp() {
   // 8. Theme toggle button
   const themeBtn = document.getElementById('btn-theme');
   if (themeBtn) {
-    themeBtn.addEventListener('click', toggleTheme);
+    themeBtn.addEventListener('click', () => {
+      toggleTheme();
+      trackThemeToggle(isDark() ? 'dark' : 'light');
+    });
   }
 
   // 9. Toolbar actions
@@ -169,26 +181,53 @@ export async function initApp() {
     });
   }
 
-  // Open file button
+  // Open file button — dispatches by active tab
   const openBtn = document.getElementById('btn-open');
   if (openBtn) {
     openBtn.addEventListener('click', async () => {
       try {
-        const result = await openFile();
-        if (result) loadFile(result);
+        const tab = getCurrentTab();
+        let result;
+        if (tab === 'document') {
+          result = await openDocFile();
+        } else if (tab === 'sheet') {
+          result = await openSheetFile();
+        } else if (tab === 'slide') {
+          result = await openSlideFile();
+        } else {
+          result = await openFile();
+          if (result) loadFile(result);
+        }
+        if (result) {
+          updateFileName(result.name);
+          trackFileOpen(result.name);
+        }
       } catch (e) {
         if (e.name !== 'AbortError') console.error('Open file error:', e);
       }
     });
   }
 
-  // Save file button — prompts for location/name (Save As behavior)
+  // Save file button — dispatches by active tab
   const saveBtn = document.getElementById('btn-save');
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       try {
-        const result = await saveFile(getContent());
-        if (result) updateFileName(result.name);
+        const tab = getCurrentTab();
+        let result;
+        if (tab === 'document') {
+          result = await saveDocFile();
+        } else if (tab === 'sheet') {
+          result = await saveSheetFile();
+        } else if (tab === 'slide') {
+          result = await saveSlideFile();
+        } else {
+          result = await saveFile(getContent());
+        }
+        if (result) {
+          updateFileName(result.name);
+          trackFileSave(result.name);
+        }
       } catch (e) {
         console.error('Save file error:', e);
       }
@@ -201,6 +240,7 @@ export async function initApp() {
     openFolderBtn.addEventListener('click', async () => {
       const tree = await openFolder(loadFile);
       if (tree) {
+        trackFolderOpen();
         const treeContainer = document.getElementById('folder-tree');
         if (treeContainer) {
           treeContainer.innerHTML = '';
@@ -226,23 +266,42 @@ export async function initApp() {
   initShortcuts({
     open: async () => {
       try {
-        const result = await openFile();
-        if (result) loadFile(result);
+        const tab = getCurrentTab();
+        let result;
+        if (tab === 'document') result = await openDocFile();
+        else if (tab === 'sheet') result = await openSheetFile();
+        else if (tab === 'slide') result = await openSlideFile();
+        else { result = await openFile(); if (result) loadFile(result); }
+        if (result) updateFileName(result.name);
       } catch (e) {
         if (e.name !== 'AbortError') console.error(e);
       }
     },
     save: async () => {
       try {
-        const result = await quickSave(getContent());
+        const tab = getCurrentTab();
+        let result;
+        if (tab === 'document') result = await quickSaveDoc();
+        else if (tab === 'sheet') result = await saveSheetFile();
+        else if (tab === 'slide') result = await saveSlideFile();
+        else { result = await quickSave(getContent()); }
         if (result) updateFileName(result.name);
       } catch (e) {
         console.error(e);
       }
     },
-    bold: () => wrapSelection('**'),
-    italic: () => wrapSelection('*'),
-    print: () => printDocument(getContent(), getCurrentFileName()),
+    bold: () => {
+      if (getCurrentTab() === 'document') document.execCommand('bold');
+      else wrapSelection('**');
+    },
+    italic: () => {
+      if (getCurrentTab() === 'document') document.execCommand('italic');
+      else wrapSelection('*');
+    },
+    print: () => printDocument(
+      getCurrentTab() === 'document' ? getDocContent() : getContent(),
+      getCurrentTab() === 'document' ? getDocFileName() : getCurrentFileName()
+    ),
   });
 
   // 15. Render recent files
@@ -252,6 +311,25 @@ export async function initApp() {
 
   // 16. Scroll sync
   initScrollSync(editorContainer, document.getElementById('preview-container'));
+
+  // 17. Tab navigation
+  initTabs();
+  initDocEditor();
+  initSheetEditor();
+  initSlideEditor();
+  initPdfViewer();
+
+  // Update filename display on tab switch
+  onTabChange((tab) => {
+    if (tab === 'document') updateFileName(getDocFileName());
+    else if (tab === 'sheet') updateFileName(getSheetFileName());
+    else if (tab === 'slide') updateFileName(getSlideFileName());
+    else if (tab === 'pdf') updateFileName(getPdfFileName());
+    else updateFileName(getCurrentFileName());
+  });
+
+  // 18. Analytics — session duration tracking
+  initSessionTracking();
 }
 
 /**
@@ -270,7 +348,7 @@ function showExportMenu(anchorBtn) {
   menu.style.cssText = `
     position: absolute;
     right: 12px;
-    top: 48px;
+    top: 82px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -281,9 +359,9 @@ function showExportMenu(anchorBtn) {
   `;
 
   const items = [
-    { label: '🖨️ Print', action: () => printDocument(getContent(), getCurrentFileName()) },
-    { label: '📄 Export as PDF', action: () => exportPDF(getContent(), getCurrentFileName()) },
-    { label: '🌐 Export as HTML', action: () => exportHTML(getContent(), getCurrentFileName()) },
+    { label: '🖨️ Print', action: () => { trackExport('print'); printDocument(getContent(), getCurrentFileName()); } },
+    { label: '📄 Export as PDF', action: () => { trackExport('pdf'); exportPDF(getContent(), getCurrentFileName()); } },
+    { label: '🌐 Export as HTML', action: () => { trackExport('html'); exportHTML(getContent(), getCurrentFileName()); } },
   ];
 
   items.forEach(({ label, action }) => {

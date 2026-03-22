@@ -1,0 +1,214 @@
+/* Sheet Editor */
+#view-sheet {
+  flex-direction: column;
+}
+
+.sheet-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--pane-header-bg);
+  border-bottom: 1px solid var(--border-color);
+  min-height: 34px;
+}
+
+.sheet-cell-ref {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 48px;
+  padding: 4px 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.sheet-fx-label {
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-tertiary);
+  padding: 0 4px;
+}
+
+.sheet-formula-bar {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.sheet-formula-bar:focus {
+  border-color: var(--brand-color);
+}
+
+/* Grid */
+.sheet-container {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-primary);
+}
+
+.sheet-grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  user-select: none;
+}
+
+.sheet-grid th,
+.sheet-grid td {
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  padding: 0;
+  position: relative;
+}
+
+/* Corner cell */
+.sheet-grid th.sheet-corner {
+  width: 40px;
+  min-width: 40px;
+  background: var(--pane-header-bg);
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+
+/* Column headers */
+.sheet-grid th.sheet-col-header {
+  height: 24px;
+  min-width: 80px;
+  width: 80px;
+  background: var(--pane-header-bg);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.sheet-grid th.sheet-col-header:hover,
+.sheet-grid th.sheet-col-header.selected {
+  background: var(--hover-bg);
+  color: var(--brand-color);
+}
+
+/* Row headers */
+.sheet-grid th.sheet-row-header {
+  width: 40px;
+  min-width: 40px;
+  background: var(--pane-header-bg);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.sheet-grid th.sheet-row-header:hover,
+.sheet-grid th.sheet-row-header.selected {
+  background: var(--hover-bg);
+  color: var(--brand-color);
+}
+
+/* Data cells */
+.sheet-grid td {
+  height: 24px;
+  min-width: 80px;
+  width: 80px;
+  padding: 2px 4px;
+  color: var(--text-primary);
+  background: var(--preview-bg);
+  cursor: cell;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-grid td.selected {
+  outline: 2px solid var(--brand-color);
+  outline-offset: -1px;
+  z-index: 1;
+}
+
+.sheet-grid td.in-range {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.sheet-grid td.editing {
+  padding: 0;
+  overflow: visible;
+}
+
+.sheet-grid td.editing input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 2px 4px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--preview-bg);
+  color: var(--text-primary);
+}
+
+/* Sheet tabs */
+.sheet-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 8px;
+  height: 28px;
+  background: var(--pane-header-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.sheet-tab {
+  padding: 4px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.sheet-tab:hover {
+  color: var(--text-secondary);
+}
+
+.sheet-tab.active {
+  color: var(--brand-color);
+  border-bottom-color: var(--brand-color);
+  background: var(--bg-primary);
+}
+
+.sheet-tab-add {
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.sheet-tab-add:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}

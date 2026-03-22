@@ -89,7 +89,7 @@ html, body {
 /* App Container */
 .app-container {
   display: flex;
-  height: calc(100vh - 44px);
+  height: calc(100vh - 44px - 34px);
 }
 
 /* Sidebar */

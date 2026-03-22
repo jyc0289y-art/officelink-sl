@@ -25,10 +25,13 @@
     "codemirror": "^6.0.2",
     "highlight.js": "^11.11.1",
     "html2pdf.js": "^0.14.0",
+    "jszip": "^3.10.1",
     "katex": "^0.16.38",
     "markdown-it": "^14.1.1",
     "markdown-it-task-lists": "^2.1.1",
-    "mermaid": "^11.13.0"
+    "mermaid": "^11.13.0",
+    "pdfjs-dist": "^5.5.207",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "vite": "^8.0.0"
