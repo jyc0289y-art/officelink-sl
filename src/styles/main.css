@@ -70,6 +70,286 @@ html, body {
   line-height: 1;
 }
 
+/* AI button — prominent brand styling */
+#btn-ai {
+  background: var(--brand-color);
+  color: #fff;
+  width: auto;
+  padding: 0 10px;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 14px;
+  box-shadow: 0 0 8px rgba(41, 151, 255, 0.35);
+  animation: ai-glow 2s ease-in-out infinite alternate;
+}
+#btn-ai:hover {
+  background: var(--brand-color);
+  filter: brightness(1.15);
+  color: #fff;
+}
+#btn-ai .icon { font-size: 12px; }
+@keyframes ai-glow {
+  from { box-shadow: 0 0 6px rgba(41, 151, 255, 0.3); }
+  to   { box-shadow: 0 0 14px rgba(41, 151, 255, 0.6); }
+}
+
+/* Language button */
+.lang-btn {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.lang-btn:hover {
+  border-color: var(--brand-color);
+  color: var(--text-primary);
+}
+
+/* ========== Language Picker Overlay ========== */
+.lang-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.15s ease;
+}
+.lang-picker-modal {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  width: 560px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.lang-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+.lang-picker-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.lang-picker-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.lang-picker-close:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+.lang-picker-search-wrap {
+  padding: 12px 20px;
+}
+.lang-picker-search {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary, var(--bg-primary));
+  color: var(--text-primary);
+  outline: none;
+}
+.lang-picker-search:focus {
+  border-color: var(--brand-color);
+  box-shadow: 0 0 0 2px rgba(41, 151, 255, 0.15);
+}
+.lang-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
+  padding: 4px 20px 20px;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+.lang-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+  color: var(--text-primary);
+}
+.lang-picker-item:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+}
+.lang-picker-item.active {
+  background: rgba(41, 151, 255, 0.1);
+  border-color: var(--brand-color);
+}
+.lang-picker-flag {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.lang-picker-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.lang-picker-english {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: block;
+}
+
+/* ========== Language Recommendation Overlay ========== */
+.lang-recommend-overlay {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  z-index: 1900;
+  animation: slideDown 0.3s ease;
+}
+.lang-recommend-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  padding: 16px 20px;
+  min-width: 280px;
+}
+.lang-recommend-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.lang-recommend-flag {
+  font-size: 24px;
+}
+.lang-recommend-actions {
+  display: flex;
+  gap: 8px;
+}
+.lang-recommend-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.lang-recommend-btn.primary {
+  background: var(--brand-color);
+  color: #fff;
+}
+.lang-recommend-btn.primary:hover {
+  filter: brightness(1.1);
+}
+.lang-recommend-btn.secondary {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+}
+.lang-recommend-btn.secondary:hover {
+  background: var(--active-bg, var(--hover-bg));
+  color: var(--text-primary);
+}
+
+/* ========== Onboarding Tour ========== */
+.tour-highlight {
+  position: relative;
+  z-index: 1800;
+  box-shadow: 0 0 0 4px var(--brand-color), 0 0 16px rgba(41, 151, 255, 0.3);
+  border-radius: 8px;
+}
+.tour-tooltip {
+  position: fixed;
+  z-index: 1850;
+  background: var(--bg-primary);
+  border: 1px solid var(--brand-color);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+  padding: 14px 18px;
+  max-width: 340px;
+  animation: slideDown 0.25s ease;
+}
+.tour-tooltip-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.tour-tooltip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour-tooltip-progress {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-right: auto;
+}
+.tour-tooltip-dismiss {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+}
+.tour-tooltip-dismiss:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+.tour-tooltip-next {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--brand-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tour-tooltip-next:hover {
+  filter: brightness(1.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .toolbar-divider {
   width: 1px;
   height: 20px;

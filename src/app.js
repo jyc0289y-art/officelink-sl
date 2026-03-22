@@ -23,8 +23,9 @@ import { initSheetEditor, getSheetsData } from './sheet/sheet-ui.js';
 import { openSheetFile, saveSheetFile, getSheetFileName } from './sheet/sheet-file.js';
 import { initSlideEditor } from './slide/slide-editor.js';
 import { openSlideFile, saveSlideFile, getSlideFileName } from './slide/slide-file.js';
-import { initPdfViewer, getPdfFileName } from './pdf/pdf-viewer.js';
+import { initPdfViewer, getPdfFileName, getPdfText, getPdfPageImages, openPdf } from './pdf/pdf-viewer.js';
 import { initAiChat, setContextProviders } from './ai/ai-chat.js';
+import { initI18n, setLang, getLang, showLanguagePicker, onLangChange } from './ui/i18n.js';
 
 // Default welcome content
 const WELCOME_MD = `# Welcome to MarkLink SL ✦
@@ -195,6 +196,9 @@ export async function initApp() {
           result = await openSheetFile();
         } else if (tab === 'slide') {
           result = await openSlideFile();
+        } else if (tab === 'pdf') {
+          await openPdf();
+          return; // openPdf handles its own filename update
         } else {
           result = await openFile();
           if (result) loadFile(result);
@@ -272,6 +276,7 @@ export async function initApp() {
         if (tab === 'document') result = await openDocFile();
         else if (tab === 'sheet') result = await openSheetFile();
         else if (tab === 'slide') result = await openSlideFile();
+        else if (tab === 'pdf') { await openPdf(); return; }
         else { result = await openFile(); if (result) loadFile(result); }
         if (result) updateFileName(result.name);
       } catch (e) {
@@ -338,6 +343,8 @@ export async function initApp() {
       catch { return ''; }
     },
     getMarkdownContent: () => getContent(),
+    getPdfText: () => getPdfText(),
+    getPdfImages: () => getPdfPageImages(),
     insertContent: (text) => {
       const tab = getCurrentTab();
       if (tab === 'document') {
@@ -358,6 +365,25 @@ export async function initApp() {
 
   // 19. Analytics — session duration tracking
   initSessionTracking();
+
+  // 20. Internationalization
+  initI18n();
+  const langBtn = document.getElementById('lang-btn');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => showLanguagePicker());
+  }
+
+  // 21. First-time user onboarding tour
+  initOnboardingTour();
+
+  // 22. Tutorial button — restart tour
+  const tutorialBtn = document.getElementById('btn-tutorial');
+  if (tutorialBtn) {
+    tutorialBtn.addEventListener('click', () => {
+      localStorage.removeItem('marklink-tour-done');
+      startOnboardingTour();
+    });
+  }
 }
 
 /**
@@ -428,6 +454,113 @@ function showExportMenu(anchorBtn) {
     };
     document.addEventListener('click', closeHandler);
   }, 0);
+}
+
+/**
+ * First-time user onboarding tour — auto-start on first visit
+ */
+function initOnboardingTour() {
+  const TOUR_KEY = 'marklink-tour-done';
+  if (localStorage.getItem(TOUR_KEY)) return;
+
+  const waitAndStart = () => {
+    if (document.querySelector('.lang-recommend-overlay')) {
+      setTimeout(waitAndStart, 1000);
+      return;
+    }
+    setTimeout(() => startOnboardingTour(), 800);
+  };
+
+  setTimeout(waitAndStart, 2000);
+}
+
+/**
+ * Onboarding tour — can be called from tutorial button or auto-start
+ */
+function startOnboardingTour() {
+  const TOUR_KEY = 'marklink-tour-done';
+
+  // Remove any existing tour
+  document.querySelector('.tour-tooltip')?.remove();
+  document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+
+  const dontShowLabel = { en: "Don't show again", ko: '다시 보지 않기', ja: '今後表示しない', zh: '不再显示', es: 'No mostrar de nuevo', fr: 'Ne plus afficher' };
+  const nextLabel = { en: 'Next', ko: '다음', ja: '次へ', zh: '下一步', es: 'Siguiente', fr: 'Suivant' };
+  const doneLabel = { en: 'Done', ko: '완료', ja: '完了', zh: '完成', es: 'Listo', fr: 'Terminé' };
+
+  const steps = [
+    {
+      target: '#lang-btn',
+      text: { en: 'Change your language anytime by clicking here. 30+ languages are supported!', ko: '여기를 클릭해서 언제든 언어를 변경할 수 있습니다. 30개 이상의 언어를 지원합니다!', ja: 'ここをクリックしていつでも言語を変更できます。30以上の言語をサポート!', zh: '随时点击这里更改语言。支持30多种语言!' },
+    },
+    {
+      target: '.tab-bar',
+      text: { en: 'Switch between Document (Word), Sheet (Excel), Slide (PPT), PDF, and Markdown views using these tabs.', ko: '이 탭으로 Document(워드), Sheet(엑셀), Slide(PPT), PDF, Markdown 뷰를 전환합니다.', ja: 'これらのタブでDocument、Sheet、Slide、PDF、Markdownビューを切り替えます。', zh: '使用这些选项卡在Document、Sheet、Slide、PDF和Markdown视图之间切换。' },
+    },
+    {
+      target: '#btn-ai',
+      text: { en: 'Try AI Assistant! It runs free on your PC — analyze, translate, summarize documents with no cloud, no subscription.', ko: 'AI 어시스턴트를 사용해보세요! PC에서 무료로 동작하며 클라우드 없이 문서 분석, 번역, 요약이 가능합니다.', ja: 'AIアシスタントを試してみてください！PCで無料で動作し、クラウドなしで文書分析・翻訳・要約が可能です。', zh: '试试AI助手！在您的PC上免费运行——无需云端即可分析、翻译、总结文档。' },
+    },
+    {
+      target: '#btn-open',
+      text: { en: 'Open files here, or drag & drop them onto the app.', ko: '여기서 파일을 열거나 앱에 드래그&드롭하세요.', ja: 'ここでファイルを開くか、アプリにドラッグ&ドロップしてください。', zh: '在这里打开文件，或将文件拖放到应用中。' },
+    },
+    {
+      target: '#btn-export',
+      text: { en: 'Export your work as PDF, HTML, DOCX, or print directly.', ko: 'PDF, HTML, DOCX로 내보내기하거나 직접 인쇄하세요.', ja: 'PDF、HTML、DOCXでエクスポートするか、直接印刷してください。', zh: '将您的工作导出为PDF、HTML、DOCX或直接打印。' },
+    },
+    {
+      target: '#btn-tutorial',
+      text: { en: 'Click here anytime to see this tutorial again!', ko: '언제든 여기를 클릭하면 이 튜토리얼을 다시 볼 수 있습니다!', ja: 'いつでもここをクリックしてこのチュートリアルを再表示できます！', zh: '随时点击这里再次查看此教程！' },
+    },
+  ];
+
+  const lang = getLang();
+  const getText = (obj) => obj[lang] || obj.en;
+
+  function showStep(index) {
+    document.querySelector('.tour-tooltip')?.remove();
+    document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+
+    if (index >= steps.length) {
+      localStorage.setItem(TOUR_KEY, '1');
+      return;
+    }
+
+    const step = steps[index];
+    const target = document.querySelector(step.target);
+    if (!target) { showStep(index + 1); return; }
+
+    target.classList.add('tour-highlight');
+    const rect = target.getBoundingClientRect();
+
+    const isLast = index >= steps.length - 1;
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tour-tooltip';
+    tooltip.innerHTML = `
+      <div class="tour-tooltip-text">${getText(step.text)}</div>
+      <div class="tour-tooltip-actions">
+        <span class="tour-tooltip-progress">${index + 1} / ${steps.length}</span>
+        <button class="tour-tooltip-dismiss">${getText(dontShowLabel)}</button>
+        <button class="tour-tooltip-next">${isLast ? getText(doneLabel) : getText(nextLabel)}</button>
+      </div>
+    `;
+
+    // Position below target
+    tooltip.style.top = (rect.bottom + 10) + 'px';
+    tooltip.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 340)) + 'px';
+
+    tooltip.querySelector('.tour-tooltip-next').addEventListener('click', () => showStep(index + 1));
+    tooltip.querySelector('.tour-tooltip-dismiss').addEventListener('click', () => {
+      document.querySelector('.tour-tooltip')?.remove();
+      document.querySelector('.tour-highlight')?.classList.remove('tour-highlight');
+      localStorage.setItem(TOUR_KEY, '1');
+    });
+
+    document.body.appendChild(tooltip);
+  }
+
+  showStep(0);
 }
 
 /**

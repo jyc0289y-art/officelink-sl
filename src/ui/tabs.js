@@ -1,6 +1,6 @@
 // MarkLink SL — Tab Navigation
 
-let currentTab = 'markdown';
+let currentTab = 'document';
 const listeners = [];
 
 export function initTabs() {

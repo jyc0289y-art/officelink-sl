@@ -32,46 +32,50 @@
     <div class="toolbar-left">
       <span class="toolbar-brand">✦ MarkLink SL</span>
       <div class="toolbar-divider"></div>
-      <button id="btn-open" class="toolbar-btn" title="Open File (⌘O)">
+      <button id="btn-open" class="toolbar-btn" data-tip="tip.open" title="Open File (⌘O)">
         <span class="icon">📂</span>
       </button>
-      <button id="btn-save" class="toolbar-btn" title="Save File (⌘S)">
+      <button id="btn-save" class="toolbar-btn" data-tip="tip.save" title="Save File (⌘S)">
         <span class="icon">💾</span>
       </button>
       <div class="toolbar-divider"></div>
-      <button id="btn-bold" class="toolbar-btn" title="Bold (⌘B)">
+      <button id="btn-bold" class="toolbar-btn" data-tip="tip.bold" title="Bold (⌘B)">
         <span class="icon"><b>B</b></span>
       </button>
-      <button id="btn-italic" class="toolbar-btn" title="Italic (⌘I)">
+      <button id="btn-italic" class="toolbar-btn" data-tip="tip.italic" title="Italic (⌘I)">
         <span class="icon"><i>I</i></span>
       </button>
-      <button id="btn-heading" class="toolbar-btn" title="Heading">
+      <button id="btn-heading" class="toolbar-btn" data-tip="tip.heading" title="Heading">
         <span class="icon">H</span>
       </button>
-      <button id="btn-code" class="toolbar-btn" title="Code Block">
+      <button id="btn-code" class="toolbar-btn" data-tip="tip.code" title="Code Block">
         <span class="icon">&lt;/&gt;</span>
       </button>
-      <button id="btn-list" class="toolbar-btn" title="List">
+      <button id="btn-list" class="toolbar-btn" data-tip="tip.list" title="List">
         <span class="icon">☰</span>
       </button>
-      <button id="btn-link" class="toolbar-btn" title="Link">
+      <button id="btn-link" class="toolbar-btn" data-tip="tip.link" title="Link">
         <span class="icon">🔗</span>
       </button>
-      <button id="btn-table" class="toolbar-btn" title="Table">
+      <button id="btn-table" class="toolbar-btn" data-tip="tip.table" title="Table">
         <span class="icon">▦</span>
       </button>
     </div>
     <div class="toolbar-right">
-      <button id="btn-sidebar" class="toolbar-btn" title="Toggle Sidebar">
+      <button id="btn-sidebar" class="toolbar-btn" data-tip="tip.sidebar" title="Toggle Sidebar">
         <span class="icon">📁</span>
       </button>
-      <button id="btn-export" class="toolbar-btn" title="Export">
+      <button id="btn-export" class="toolbar-btn" data-tip="tip.export" title="Export">
         <span class="icon">⬇</span>
       </button>
-      <button id="btn-ai" class="toolbar-btn" title="AI Assistant (Local LLM — Free, Private, No Cloud)">
-        <span class="icon">AI</span>
+      <button id="btn-ai" class="toolbar-btn" data-tip="tip.ai" title="AI Assistant">
+        <span class="icon">✦ AI</span>
       </button>
-      <button id="btn-theme" class="toolbar-btn" title="Toggle Theme">
+      <button id="lang-btn" class="lang-btn" data-tip="tip.lang" title="Change Language">🇺🇸 English</button>
+      <button id="btn-tutorial" class="toolbar-btn" data-tip="tip.tutorial" title="Tutorial">
+        <span class="icon">❓</span>
+      </button>
+      <button id="btn-theme" class="toolbar-btn" data-tip="tip.theme" title="Toggle Theme">
         <span class="icon" id="theme-icon">🌙</span>
       </button>
       <div class="toolbar-divider"></div>
@@ -81,11 +85,11 @@
 
   <!-- Tab Bar -->
   <nav id="tab-bar" class="tab-bar">
-    <button class="tab-item active" data-tab="markdown">Markdown</button>
-    <button class="tab-item" data-tab="document">Document</button>
+    <button class="tab-item active" data-tab="document">Document</button>
     <button class="tab-item" data-tab="sheet">Sheet</button>
     <button class="tab-item" data-tab="slide">Slide</button>
     <button class="tab-item" data-tab="pdf">PDF</button>
+    <button class="tab-item" data-tab="markdown">Markdown</button>
   </nav>
 
   <!-- Main Content -->
@@ -104,7 +108,7 @@
     </aside>
 
     <!-- Markdown View -->
-    <div id="view-markdown" class="app-view active">
+    <div id="view-markdown" class="app-view">
       <div id="split-pane" class="split-pane">
         <!-- Editor -->
         <div id="editor-pane" class="pane editor-pane">
@@ -130,7 +134,7 @@
     </div>
 
     <!-- Document View -->
-    <div id="view-document" class="app-view">
+    <div id="view-document" class="app-view active">
       <div class="doc-toolbar">
         <select id="doc-font-family" title="Font">
           <option value="sans-serif">Sans-serif</option>
@@ -319,19 +323,21 @@
     </div>
     <div class="ai-input-area">
       <div class="ai-context-btns">
-        <button class="ai-ctx-btn" id="ai-ctx-doc" title="Attach current document content">+ Document</button>
-        <button class="ai-ctx-btn" id="ai-ctx-sheet" title="Attach current sheet data">+ Sheet</button>
-        <button class="ai-ctx-btn" id="ai-ctx-selection" title="Attach selected text">+ Selection</button>
+        <button class="ai-ctx-btn" id="ai-ctx-doc" data-tip="ai.ctx.doc">+ Document</button>
+        <button class="ai-ctx-btn" id="ai-ctx-sheet" data-tip="ai.ctx.sheet">+ Sheet</button>
+        <button class="ai-ctx-btn" id="ai-ctx-pdf" data-tip="ai.ctx.pdf">+ PDF</button>
+        <button class="ai-ctx-btn" id="ai-ctx-selection" data-tip="ai.ctx.selection">+ Selection</button>
       </div>
       <div class="ai-input-row">
-        <textarea id="ai-chat-input" class="ai-chat-input" rows="1" placeholder="Ask AI anything..."></textarea>
-        <button id="ai-send-btn" class="ai-send-btn" title="Send">&#9654;</button>
+        <textarea id="ai-chat-input" class="ai-chat-input" rows="1" data-placeholder="ai.input.placeholder" placeholder="AI에게 질문하세요 — 문서 분석, 번역, 요약, 수식 등"></textarea>
+        <button id="ai-send-btn" class="ai-send-btn" data-tip="ai.send">&#9654;</button>
       </div>
     </div>
     <div class="ai-bottom-actions">
-      <button class="ai-action-btn" id="ai-insert-btn" title="Insert last AI response into the editor">Insert to Editor</button>
-      <button class="ai-action-btn" id="ai-setup-btn" title="Install Ollama and manage AI models">AI Setup</button>
-      <button class="ai-action-btn" id="ai-clear-btn" title="Clear chat history">Clear</button>
+      <button class="ai-action-btn" id="ai-insert-btn" data-tip="ai.insert">Insert</button>
+      <button class="ai-action-btn" id="ai-sessions-btn" data-tip="ai.sessions">Sessions</button>
+      <button class="ai-action-btn" id="ai-setup-btn" data-tip="ai.setup">Setup</button>
+      <button class="ai-action-btn" id="ai-clear-btn" data-tip="ai.clear">Clear</button>
     </div>
   </aside>
 

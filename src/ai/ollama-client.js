@@ -12,7 +12,8 @@ export const MODEL_TIERS = [
     minRAM: 4,
     size: '~1GB',
     desc: '가벼운 모델 — 4GB RAM 이상, 빠른 응답',
-    descEn: 'Lightweight — 4GB+ RAM, fast responses',
+    capabilities: ['문서 작성', '번역', '요약'],
+    limitations: ['복잡한 분석 어려움', '이미지 인식 불가'],
   },
   {
     id: 'medium',
@@ -21,7 +22,8 @@ export const MODEL_TIERS = [
     minRAM: 8,
     size: '~4.5GB',
     desc: '균형 잡힌 모델 — 8GB RAM 이상 권장',
-    descEn: 'Balanced — 8GB+ RAM recommended',
+    capabilities: ['문서 작성', '번역', '요약', '코드 작성', '데이터 분석'],
+    limitations: ['이미지 인식 불가'],
   },
   {
     id: 'large',
@@ -30,7 +32,8 @@ export const MODEL_TIERS = [
     minRAM: 16,
     size: '~9GB',
     desc: '고성능 모델 — 16GB RAM 이상 권장',
-    descEn: 'High quality — 16GB+ RAM recommended',
+    capabilities: ['문서 작성', '번역', '요약', '코드 작성', '데이터 분석', '논문 분석'],
+    limitations: ['이미지 인식 불가'],
   },
   {
     id: 'xlarge',
@@ -39,7 +42,19 @@ export const MODEL_TIERS = [
     minRAM: 32,
     size: '~20GB',
     desc: '최고 성능 — 32GB RAM 이상 권장',
-    descEn: 'Best quality — 32GB+ RAM recommended',
+    capabilities: ['문서 작성', '번역', '요약', '코드 작성', '데이터 분석', '논문 분석', '복잡한 추론'],
+    limitations: ['이미지 인식 불가'],
+  },
+  {
+    id: 'vision',
+    label: 'Vision (11B)',
+    model: 'llama3.2-vision:11b',
+    minRAM: 16,
+    size: '~7GB',
+    desc: 'PDF 수식/표/그림 인식 — 이미지 분석 전용',
+    capabilities: ['이미지 인식', 'PDF 수식 분석', '표 읽기', '그림 설명', '문서 작성'],
+    limitations: ['텍스트 전용 모델보다 일반 작문 능력 낮음'],
+    isVision: true,
   },
 ];
 
@@ -110,8 +125,22 @@ export async function pullModel(modelName, onProgress) {
   }
 }
 
+// Vision-capable models that support image input
+export const VISION_MODELS = ['llava', 'llama3.2-vision', 'moondream', 'bakllava', 'minicpm-v'];
+
+/**
+ * Check if a model name indicates vision capability
+ */
+export function isVisionModel(modelName) {
+  return VISION_MODELS.some(v => modelName.toLowerCase().includes(v));
+}
+
 /**
  * Chat with Ollama — streaming response
+ * @param {string} model
+ * @param {Array} messages - chat history [{role, content, images?}]
+ * @param {string} systemPrompt
+ * @param {Function} onToken
  */
 export async function chat(model, messages, systemPrompt, onToken) {
   const body = {

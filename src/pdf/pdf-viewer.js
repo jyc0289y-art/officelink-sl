@@ -174,6 +174,48 @@ async function fitWidth() {
   await renderAllPages();
 }
 
+/**
+ * Extract text from all pages of the loaded PDF
+ */
+export async function getPdfText() {
+  if (!pdfDoc) return '';
+  const pages = [];
+  for (let i = 1; i <= pdfDoc.numPages; i++) {
+    const page = await pdfDoc.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(' ');
+    if (pageText.trim()) pages.push(`[Page ${i}]\n${pageText}`);
+  }
+  return pages.join('\n\n');
+}
+
+/**
+ * Render PDF pages as base64 JPEG images for vision model analysis.
+ * Returns array of { page, base64 } (without data:image prefix).
+ * Limits to first maxPages to avoid excessive memory usage.
+ */
+export async function getPdfPageImages(maxPages = 5) {
+  if (!pdfDoc) return [];
+  const images = [];
+  const total = Math.min(pdfDoc.numPages, maxPages);
+  for (let i = 1; i <= total; i++) {
+    const page = await pdfDoc.getPage(i);
+    const viewport = page.getViewport({ scale: 1.5 }); // good quality for vision
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    // Ollama expects raw base64 without the data:image/... prefix
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const base64 = dataUrl.split(',')[1];
+    images.push({ page: i, base64 });
+  }
+  return images;
+}
+
+export { openPdf };
+
 export function getPdfFileName() {
   return currentName || 'untitled.pdf';
 }
